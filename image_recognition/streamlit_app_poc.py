@@ -5,9 +5,8 @@ from transformers import VisionEncoderDecoderModel, ViTFeatureExtractor, AutoTok
 import streamlit as st
 
 st.title('Amazing AVPRG stuff happing :alien:')
-st.title("Upload Your Image")
 
-img = st.file_uploader('')
+img = st.file_uploader("Upload Your Image")
 
 model = VisionEncoderDecoderModel.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
 feature_extractor = ViTFeatureExtractor.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
@@ -41,4 +40,5 @@ if st.button('Predict'):
 
 
 if __name__ == "__main__":
+    print(predict_single_img('img/kuh.jpeg'))
     pass

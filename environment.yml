@@ -1,5 +1,5 @@
 name: avprg
 dependencies:
-  - pytorch=1.13.0=py3.9_cpu_0
+  - pytorch=1.13.0
   - transformers=4.24.0
   - streamlit=1.14.1

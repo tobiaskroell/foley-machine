@@ -26,6 +26,12 @@ Usage - formats:
                                  yolov5s_paddle_model       # PaddlePaddle
 """
 
+from utils.torch_utils import select_device, smart_inference_mode
+from utils.plots import Annotator, colors, save_one_box
+from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
+                           increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
+from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
+from models.common import DetectMultiBackend
 import argparse
 import os
 import platform
@@ -34,18 +40,13 @@ from pathlib import Path
 
 import torch
 
+import pdb
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
-
-from models.common import DetectMultiBackend
-from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
-from utils.plots import Annotator, colors, save_one_box
-from utils.torch_utils import select_device, smart_inference_mode
 
 
 @smart_inference_mode()
@@ -84,6 +85,8 @@ def run(
     is_url = source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
     webcam = source.isnumeric() or source.endswith('.txt') or (is_url and not is_file)
     screenshot = source.lower().startswith('screen')
+    res_list = []
+
     if is_url and is_file:
         source = check_file(source)  # download
 
@@ -202,7 +205,9 @@ def run(
                     vid_writer[i].write(im0)
 
         # Print time (inference-only)
-        LOGGER.info(''+ f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+        inf_res = '' + f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms"
+        res_list.append(inf_res)
+        LOGGER.info(inf_res)
 
     # Print results
     t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
@@ -212,6 +217,7 @@ def run(
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
+    print('\n\n res_list: ', res_list)
 
 
 def parse_opt():
@@ -253,6 +259,25 @@ def main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
     run(**vars(opt))
 
+
+def main_modified(video_name):
+    check_requirements(exclude=('tensorboard', 'thop'))
+    run(
+        source=f'..\\input_video\\{video_name}',
+        data='data/coco128.yaml',
+        weights='yolov5s.pt',
+        conf_thres=0.25,
+        device='0',
+        vid_stride=1000,
+        nosave=True,
+        save_txt=True,
+    )
+
+
 if __name__ == "__main__":
     opt = parse_opt()
-    main(opt)
+    # print('OPT::::::::::::::')
+    # print(opt)
+    # main(opt)
+    main_modified('animals.mp4')
+    

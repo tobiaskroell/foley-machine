@@ -1,7 +1,8 @@
-# Python Server Starten 
+# Start Python Server
 uvicorn main:app --reload
-
-# POST /video
+<br><br>
+# API Endpoints <br>
+### POST /video
 Body:<br>
 {<br>
 	"video_name" : "funnycats.mp4"<br>

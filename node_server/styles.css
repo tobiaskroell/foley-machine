@@ -1,0 +1,317 @@
+html {
+    font-size: 16px;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 100vw;
+    height: 100vh;
+    padding: 25px;
+    margin: 0;
+    overflow: hidden;
+    background: #4CA1AF;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to bottom, #b7e3e4, #4CA1AF);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to bottom, #b7e3e4, #4CA1AF); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    box-sizing: border-box;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 300;
+    color: white;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    color: #f03f35;
+}
+
+h1 {
+    font-size: 6rem;
+    margin: 1rem;
+}
+
+.subline {
+    font-size: 2rem;
+    margin: 0rem 0 2rem 0;
+    color: #f03f35;
+}
+
+#overlay {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.4);
+    z-index: 2;
+}
+
+.wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1280px;
+    box-sizing: border-box;
+}
+
+.dropzone {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    height: 25vh;
+}
+
+.dropzone.advanced_features {
+    border: 5px dashed rgba(255,255,255,0.5);
+    border-radius: 25px;
+}
+
+.dropzone.advanced_features .dropzone_dragndrop {
+    display: inline;
+}
+
+.dropzone.is_dragover {
+    background-color: rgba(255,255,255,0.5);
+}
+
+.dropzone_dragndrop,
+.dropzone_uploading,
+.dropzone_success,
+.dropzone_error {
+    display: none;
+}
+
+/* Hide input */
+.inputfile {
+    width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1; 
+}
+
+.inputfile + label {
+    font-size: 1.25em;
+    font-weight: 700;
+    background-color: none;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.inputfile:focus + label,
+.inputfile + label:hover {
+    color: #f03f35;
+}
+
+/* Keep border for accessibility */
+.inputfile:focus + label {
+	outline: 1px dotted #000;
+	outline: -webkit-focus-ring-color auto 5px;
+}
+
+.output {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    margin: 2rem;
+    padding: 1rem;
+}
+
+.hidden {
+    display: none;
+}
+
+.output > div {
+    margin: 0.5rem;
+}
+
+.output .output_sound {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.output .output_sound > div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.output .output_text > p {
+    font-size: 1.5rem;
+
+}
+
+/* Range Slider */
+label {
+    color: white;
+    text-transform: uppercase;
+    font-size: 2em;
+    font-weight: bold;
+    margin: 1rem;
+}
+
+input[type=range].slider {
+    width: 50%;
+    margin: 0.7px 0;
+    background-color: transparent;
+    -webkit-appearance: none;
+  }
+  input[type=range].slider:focus {
+    outline: none;
+  }
+  input[type=range].slider::-webkit-slider-runnable-track {
+    background: #484d4d;
+    border: 0;
+    width: 100%;
+    height: 25.6px;
+    cursor: pointer;
+  }
+  input[type=range].slider::-webkit-slider-thumb {
+    margin-top: -0.7px;
+    width: 18px;
+    height: 27px;
+    background: #f03f35;
+    border: 0px solid rgba(125, 60, 48, 0);
+    border: 0;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
+  input[type=range].slider:focus::-webkit-slider-runnable-track {
+    background: #5e6565;
+  }
+  input[type=range].slider::-moz-range-track {
+    background: #484d4d;
+    border: 0;
+    width: 100%;
+    height: 25.6px;
+    cursor: pointer;
+  }
+  input[type=range].slider::-moz-range-thumb {
+    width: 18px;
+    height: 27px;
+    background: #f03f35;
+    border: 0px solid rgba(125, 60, 48, 0);
+    border: 0;
+    cursor: pointer;
+  }
+  input[type=range].slider::-ms-track {
+    background: transparent;
+    border-color: transparent;
+    border-width: 0.7px 0;
+    color: transparent;
+    width: 100%;
+    height: 25.6px;
+    cursor: pointer;
+  }
+  input[type=range].slider::-ms-fill-lower {
+    background: #323535;
+    border: 0;
+  }
+  input[type=range].slider::-ms-fill-upper {
+    background: #484d4d;
+    border: 0;
+  }
+  input[type=range].slider::-ms-thumb {
+    width: 18px;
+    height: 27px;
+    background: #f03f35;
+    border: 0px solid rgba(125, 60, 48, 0);
+    border: 0;
+    cursor: pointer;
+    margin-top: 0px;
+    /*Needed to keep the Edge thumb centred*/
+  }
+  input[type=range].slider:focus::-ms-fill-lower {
+    background: #484d4d;
+  }
+  input[type=range].slider:focus::-ms-fill-upper {
+    background: #5e6565;
+  }
+  /*TODO: Use one of the selectors from https://stackoverflow.com/a/20541859/7077589 and figure out
+  how to remove the virtical space around the range input in IE*/
+  @supports (-ms-ime-align:auto) {
+    /* Pre-Chromium Edge only styles, selector taken from hhttps://stackoverflow.com/a/32202953/7077589 */
+    input[type=range].slider {
+      margin: 0;
+      /*Edge starts the margin from the thumb, not the track as other browsers do*/
+    }
+  }
+  
+  
+
+/* --- Local fonts --- */
+
+/* work-sans-300 - latin */
+@font-face {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 300;
+    src: url('../fonts/work-sans-v18-latin-300.eot'); /* IE9 Compat Modes */
+    src: local(''),
+            url('../fonts/work-sans-v18-latin-300.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+            url('../fonts/work-sans-v18-latin-300.woff2') format('woff2'), /* Super Modern Browsers */
+            url('../fonts/work-sans-v18-latin-300.woff') format('woff'), /* Modern Browsers */
+            url('../fonts/work-sans-v18-latin-300.ttf') format('truetype'), /* Safari, Android, iOS */
+            url('../fonts/work-sans-v18-latin-300.svg#WorkSans') format('svg'); /* Legacy iOS */
+}
+/* work-sans-regular - latin */
+@font-face {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/work-sans-v18-latin-regular.eot'); /* IE9 Compat Modes */
+    src: local(''),
+            url('../fonts/work-sans-v18-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+            url('../fonts/work-sans-v18-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+            url('../fonts/work-sans-v18-latin-regular.woff') format('woff'), /* Modern Browsers */
+            url('../fonts/work-sans-v18-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+            url('../fonts/work-sans-v18-latin-regular.svg#WorkSans') format('svg'); /* Legacy iOS */
+}
+
+/* montserrat-regular - latin */
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/montserrat-v25-latin-regular.eot'); /* IE9 Compat Modes */
+    src: local(''),
+         url('../fonts/montserrat-v25-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../fonts/montserrat-v25-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+         url('../fonts/montserrat-v25-latin-regular.woff') format('woff'), /* Modern Browsers */
+         url('../fonts/montserrat-v25-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('../fonts/montserrat-v25-latin-regular.svg#Montserrat') format('svg'); /* Legacy iOS */
+  }
+  /* montserrat-900 - latin */
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 900;
+    src: url('../fonts/montserrat-v25-latin-900.eot'); /* IE9 Compat Modes */
+    src: local(''),
+        url('../fonts/montserrat-v25-latin-900.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+        url('../fonts/montserrat-v25-latin-900.woff2') format('woff2'), /* Super Modern Browsers */
+        url('../fonts/montserrat-v25-latin-900.woff') format('woff'), /* Modern Browsers */
+        url('../fonts/montserrat-v25-latin-900.ttf') format('truetype'), /* Safari, Android, iOS */
+        url('../fonts/montserrat-v25-latin-900.svg#Montserrat') format('svg'); /* Legacy iOS */
+}

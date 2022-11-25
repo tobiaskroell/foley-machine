@@ -38,6 +38,3 @@ def predict_single_img(img):
 if st.button('Predict'):
     st.write(predict_single_img(img)[0])
 
-
-if __name__ == "__main__":
-    pass

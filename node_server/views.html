@@ -4,6 +4,7 @@
         <title></title>
         <script src="./jquery-3.6.1.min.js"></script>
         <script src="./scripts.js"></script>
+
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
@@ -28,25 +29,12 @@
                     <audio controls>
                         <source src="" type="audio/mpeg">
                     </audio>
-                    <div>
-                        <label for="volume">Volume</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
-                    </div>
-                    <div>
-                        <label for="volume">Pitch</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
-                    </div>
-                    <div>
-                        <label for="volume">Pan</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
-                    </div>
-                    <div>
-                        <label for="volume">Speed</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
-                    </div>
-                    <div>
-                        <label for="volume">Distortion</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
+                    <button id="playPauseButton">Play a beat...</button>
+
+                    <div id="audioElementsFrame" class="audioElemetsFrame">
+                        
+                    <script src="./audio.js"></script> 
+                    
                     </div>
                 </div>
             </div>

@@ -40,5 +40,4 @@ if st.button('Predict'):
 
 
 if __name__ == "__main__":
-    print(predict_single_img('img/kuh.jpeg'))
     pass

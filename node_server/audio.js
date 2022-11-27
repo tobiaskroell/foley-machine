@@ -6,7 +6,7 @@ var audioPath = "audio/";
 var audioFormat = ".wav";
 
 audioFiles = ["sound1", "sound2", "sound3", "sound4"];
-
+/*
 // function that loads audio buffer data in the audioBuffers array
 function getAudioData(fileName, i) {
   fetch(fileName + audioFormat)
@@ -18,8 +18,26 @@ function getAudioData(fileName, i) {
     .catch(console.error);
 }
 // execute the function for each audio file
+
 for (let i = 0; i < audioFiles.length; i++)
   getAudioData(audioFiles[i], i);
+*/
+
+// get audio data web 
+function loadWebSound(url,i) {
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.responseType = 'arraybuffer';
+
+  // Decode asynchronously
+  request.onload = function () {
+    context.decodeAudioData(request.response, function (buffer) {
+      audioBuffers[i] = buffer;
+    }, console.log("error"));
+  }
+  request.send();
+}
+
 
 // connects an buffer from the audioBuffers array to a gain node and then to the destination, 
 // plays the sound at the given time
@@ -27,8 +45,8 @@ function playSoundAtTime(i, time) {
   bufferSourceNodes[i] = context.createBufferSource();
   bufferSourceNodes[i].buffer = audioBuffers[i];
   if (typeof gainNodes[i] == 'undefined') {
-      gainNodes[i] = context.createGain();
-      gainNodes[i].gain.value = 0.5;
+    gainNodes[i] = context.createGain();
+    gainNodes[i].gain.value = 0.5;
   }
   bufferSourceNodes[i].connect(gainNodes[i]);
   gainNodes[i].connect(context.destination);
@@ -48,18 +66,18 @@ function createAudioDiv(audioFiles) {
     channel.setAttribute("id", `channel${i}`)
     channel.innerHTML = returnAudioElement(audioFiles[i], i)
     parentDiv.appendChild(channel)
-    document.querySelector("#volumeSlider"+i).addEventListener("input", function (e) {
-      changeParameter(e,i)
+    document.querySelector("#volumeSlider" + i).addEventListener("input", function (e) {
+      changeParameter(e, i)
     });
   }
 }
 // event handler for all sliders
-function changeParameter(e,i) {
+function changeParameter(e, i) {
   switch (e.target.id) {
-    case "volumeSlider"+i:
-      document.querySelector("#volumeOutput"+i).innerHTML = (e.target.value / 100) ;
+    case "volumeSlider" + i:
+      document.querySelector("#volumeOutput" + i).innerHTML = (e.target.value / 100);
       gainNodes[i].gain.value = e.target.value / 100;
-      
+
       break;
     case "detuneSlider":
       filter.detune.value = (this.value);
@@ -88,5 +106,9 @@ document.querySelector("#playPauseButton").addEventListener("click", function (e
   playSoundAtTime(3, 3);
   playSoundAtTime(0, 4);
 });
-   
+
 createAudioDiv(audioFiles);
+loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3",0)
+loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3",1)
+loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3",2)
+loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3",3)

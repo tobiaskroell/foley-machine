@@ -85,6 +85,7 @@ h1 {
     background-color: rgba(255,255,255,0.5);
 }
 
+/* Classes for status divs */
 .dropzone_dragndrop,
 .dropzone_uploading,
 .dropzone_success,
@@ -92,9 +93,23 @@ h1 {
     display: none;
 }
 
+.dropzone.is_uploading .dropzone_input {
+  visibility: none;
+}
+
+.dropzone.is_uploading .dropzone_uploading {
+  display: block;
+}
+
+.is_processing > p {
+  font-size: 1.25em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 /* Hide input */
 .inputfile {
-    width: 0.1px;
+  width: 0.1px;
 	height: 0.1px;
 	opacity: 0;
 	overflow: hidden;

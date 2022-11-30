@@ -271,3 +271,6 @@ dist
 .svelte-kit
 
 # End of node.js
+
+### Ignore Uploads ###
+video/

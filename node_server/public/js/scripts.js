@@ -60,6 +60,7 @@ function dropzoneHandler($dropzone, $input) {
         $dropzone
             .addClass('is_uploading')
             .removeClass('is_error');
+        $('.dropzone_input').addClass('hidden');
       
         if (hasAdvancedFeatures) {
             let formData = new FormData();
@@ -78,13 +79,17 @@ function dropzoneHandler($dropzone, $input) {
                 processData: false, // prevent converting data to query string
                 complete: function() {
                     $dropzone.removeClass('is_uploading');
+                    //$(".is_processing").addClass('hidden'); // TODO: uncomment, when debugging complete 
                 },
                 success: function(data) {
                     $dropzone.addClass( data.success == true ? 'is_success' : 'is_error' );
                     // TODO: Append correct response, change elements on page
+                    // Receive JSON response from server and call audio.js function for appending audio elements
                     $(".dropzone").append(`<p>${data}</p>`); // FOR DEBUGGING
                 },
                 error: function(error) {
+                    $dropzone.removeClass('is_uploading');
+                    $(".is_processing").addClass('hidden');
                     alert("An error occured, please try again.");
                 }
             });
@@ -96,7 +101,7 @@ function dropzoneHandler($dropzone, $input) {
     });
     // Listen to input changes and trigger submit
     $input.on('change', function(e) {
-        console.log($input[0].files[0]);
+        console.log($('.dropzone_input'));
         video = $input[0].files[0];
         if (!fileIsMp4(video, $dropzone)) return;
         $dropzone.trigger('submit');

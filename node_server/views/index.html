@@ -2,8 +2,9 @@
 <html>
     <head>
         <title></title>
-        <script src="./js/jquery-3.6.1.min.js"></script>
-        <script src="./js/scripts.js"></script>
+        <script src="/js/jquery-3.6.1.min.js"></script>
+        <script src="/js/scripts.js"></script>
+        <script src="/js/audio.js"></script>
         <link rel="stylesheet" href="./css/styles.css">
     </head>
     <body>
@@ -30,29 +31,14 @@
                 <div class="output_text">
                     <p>Angry cat sitting on a pile of gold in a goblin cave, realistic photograph</p>
                 </div>
+                <!-- Hidden audio output area -->
                 <div class="output_sound hidden">
                     <audio controls>
                         <source src="" type="audio/mpeg">
                     </audio>
-                    <div>
-                        <label for="volume">Volume</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
-                    </div>
-                    <div>
-                        <label for="volume">Pitch</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
-                    </div>
-                    <div>
-                        <label for="volume">Pan</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
-                    </div>
-                    <div>
-                        <label for="volume">Speed</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
-                    </div>
-                    <div>
-                        <label for="volume">Distortion</label>
-                        <input class="slider" type="range" id="volume" name="volume" min="0" max="100" value="50">
+                    <button id="playPauseButton">Play</button>
+                    <div id="audioElementsFrame" class="audioElemetsFrame">
+                        <!-- Area for audio elements -->                    
                     </div>
                 </div>
             </div>

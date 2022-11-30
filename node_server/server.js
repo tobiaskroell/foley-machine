@@ -51,8 +51,17 @@ app.post('/upload', /*async*/ (req, res) => {
     // TODO: Activate following two lines
     // const completeFilePath = '/node_server/public/video/' + fileName;
     // const pythonPostResponse = await post(pyServer + pyPath, completeFilePath)
-    
-    res.send("This is a test response.");
+
+    // API 
+
+
+    // JSON with freesound results
+    // {
+    //  cat: {timestamp: 1234567, audiosource: https://freesound.org/...}}, 
+    //  horse: {}, 
+    //  ...
+    // }
+    res.send("Test response");
 });
 
 /**********************

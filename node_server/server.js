@@ -39,9 +39,11 @@ app.get('/', function(req, res) {
 
 app.post('/upload', /*async*/ (req, res) => {
     // Save uploaded file to disk
-    console.log(req.files);
     const file = req.files.file;
-    console.log(file);
+    if (file.mimetype != 'video/mp4') {
+        res.status(400).send('Please make sure you have uploaded a video file (mp4).');
+        return;
+    }
     const fileName = Date.now() + ".mp4"; 
     file.mv(__dirname + '/public/video/' + fileName);
 

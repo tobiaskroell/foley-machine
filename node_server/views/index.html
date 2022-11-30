@@ -2,22 +2,28 @@
 <html>
     <head>
         <title></title>
-        <script src="./jquery-3.6.1.min.js"></script>
-        <script src="./scripts.js"></script>
-        <link rel="stylesheet" href="styles.css">
+        <script src="./js/jquery-3.6.1.min.js"></script>
+        <script src="./js/scripts.js"></script>
+        <link rel="stylesheet" href="./css/styles.css">
     </head>
     <body>
         <div id="overlay"></div>
         <div class="wrapper">
             <h1>Eyedentify</h1>
             <p class="subline">Eye see what you did there</p>
-            <form class="dropzone" method="post" action="/upload">
-                <input class="inputfile" id="imgUpload" name="imgUpload" type="file" accept="image/png, image/gif, image/jpeg" onchange="handleFiles(this.files)">
-                <label for="imgUpload"><strong>Choose a file<span class="dropzone_dragndrop"> or drag it here</span>.</strong></label>
-                <!-- <button class="dropzone_button" type="submit">Upload</button> -->
-                <div class="dropzone_uploading">Uploading…</div>
+            <form class="dropzone" method="POST" action="/upload" enctype="multipart/form-data" onsubmit="event.preventDefault();">
+                <div class=".dropzone_input">
+                    <input class="inputfile" id="file" name="file" type="file" accept="video/mp4">
+                    <label for="file"><strong>Choose a file<span class="dropzone_dragndrop"> or drag it here</span>.</strong></label>
+                    <!-- <button class="dropzone_button" type="submit">Upload</button> -->
+                </div>
+                <div class="dropzone_uploading">Video is uploading...</div>
                 <div class="dropzone_success">Done!</div>
-                <div class="dropzone_error">Error!</div>
+                <div class="dropzone_error">An error occured.</div>
+                <div class="is_processing hidden">
+                    <p><strong>Video is processing...</strong></p>
+                    <img src="/img/loading.svg" id="is_loading" src='/img/loading.svg'>
+                </div>
             </form>
             <div class="output">
                 <div class="output_image hidden"></div>

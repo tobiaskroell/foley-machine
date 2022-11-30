@@ -24,6 +24,8 @@ body {
     font-family: 'Space Mono';
     font-weight: 400;
 
+    font-size: 1rem;
+
     color: #F5F0F6;
     text-shadow: 8px 8px 10px #0000008c;
 
@@ -33,12 +35,14 @@ body {
       rgba(0,33,82,1) 0%, 
       rgba(0,0,0,1) 100%
     );
+    background-attachment: fixed;
 }
 
 /* Background 1*/
-body::after {
+.background-pattern {
   content: '';
-  position: absolute;
+  position: fixed;
+  top: 0;
   width: 100vw;
   height: 100vh;
   left: 0;
@@ -51,6 +55,14 @@ body::after {
     );
   opacity: 0.3;
   z-index: -2;
+}
+
+/* Background Waves */
+#waves {
+  position: fixed;
+  z-index: -1;
+  opacity: 0.05;
+  top: 0%;
 }
 
 /* Background 2 */
@@ -76,19 +88,24 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'Mulish', sans-serif;
     font-weight: 900;
 
+    transition: font-size 0.5s ease;
+
     /* color: #DE9151; */
     color: #7FB069;
 }
 
 h1 {
-    font-size: 6rem;
+    font-size: 5rem;
     margin: 1rem;
 }
 
 .subline {
     font-size: 2rem;
+    text-align: center;
     margin: 0rem 0 2rem 0;
     color: #F5F0F6;
+
+    transition: font-size 0.5s ease;
 }
 
 #overlay {
@@ -158,9 +175,11 @@ h1 {
 }
 
 .is_processing > p {
-  font-size: 1.25em;
+  font-size: 1.25rem;
   font-weight: 700;
   text-transform: uppercase;
+
+  transition: font-size 0.5s ease;
 }
 
 /* Hide input */
@@ -174,11 +193,14 @@ h1 {
 }
 
 .inputfile + label {
-    font-size: 1.25em;
+    font-size: 1.25rem;
     font-weight: 700;
+    text-align: center;
     background-color: none;
     display: inline-block;
     cursor: pointer;
+
+    transition: font-size 0.5s ease;
 }
 
 .inputfile:focus + label,
@@ -325,14 +347,61 @@ input[type=range].slider {
     }
   }
   
-/* Background Waves */
-#waves {
-  position: absolute;
-  z-index: -1;
-  opacity: 0.05;
-  /* top: 38%; */
+
+/* Responsive Sizes */
+
+/* X-Small devices */
+@media (max-width: 575.98px) { 
+  .output .output_text > p, .subline {
+    font-size: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+  }
 }
-  
+
+/* Small devices */
+@media (min-width: 576px) and (max-width: 767.98px) { 
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  h1 {
+    font-size: 3rem;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  h1 {
+    font-size: 3.5rem;
+  }
+}
+
+/* X-Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  h1 {
+    font-size: 4rem;
+  }
+}
+
+/* XX-Large devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) {
+  h1 {
+    font-size: 5rem;
+  }
+}
+
+@media (min-width: 2560px) {
+  h1 {
+    font-size: 6rem;
+  }
+}
+
 
 /* --- Local fonts --- */
 

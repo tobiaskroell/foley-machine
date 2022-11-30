@@ -36,3 +36,64 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/views/index.html');
 });
+
+app.post('/upload', /*async*/ (req, res) => {
+    // Save uploaded file to disk
+    console.log(req.files);
+    const file = req.files.file;
+    console.log(file);
+    const fileName = Date.now() + ".mp4"; 
+    file.mv(__dirname + '/public/video/' + fileName);
+
+    // Make request to python server
+    // TODO: Activate following two lines
+    // const completeFilePath = '/node_server/public/video/' + fileName;
+    // const pythonPostResponse = await post(pyServer + pyPath, completeFilePath)
+    
+    res.send("This is a test response.");
+});
+
+/**********************
+ ** Helper functions **
+ **********************/
+
+// Function for making a POST request to another server
+async function post(url, data) {
+  const dataString = JSON.stringify(data)
+
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': dataString.length,
+    },
+    timeout: 1000, // in ms
+  }
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(url, options, (res) => {
+      if (res.statusCode < 200 || res.statusCode > 299) {
+        return reject(new Error(`HTTP status code ${res.statusCode}`))
+      }
+
+      const body = []
+      res.on('data', (chunk) => body.push(chunk))
+      res.on('end', () => {
+        const resString = Buffer.concat(body).toString()
+        resolve(resString)
+      })
+    })
+
+    req.on('error', (err) => {
+      reject(err)
+    })
+
+    req.on('timeout', () => {
+      req.destroy()
+      reject(new Error('Request time out'))
+    })
+
+    req.write(dataString)
+    req.end()
+  })
+}

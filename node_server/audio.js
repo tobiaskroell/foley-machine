@@ -2,29 +2,29 @@ var context = new AudioContext();
 var audioBuffers = [];
 var bufferSourceNodes = [];
 var gainNodes = [];
-var audioPath = "audio/";
-var audioFormat = ".wav";
+var jsonData;
 
 audioFiles = ["sound1", "sound2", "sound3", "sound4"];
-/*
-// function that loads audio buffer data in the audioBuffers array
-function getAudioData(fileName, i) {
-  fetch(fileName + audioFormat)
-    .then(response => response.arrayBuffer())
-    .then(undecodedAudio => context.decodeAudioData(undecodedAudio))
-    .then(audioBuffer => {
-      audioBuffers[i] = audioBuffer;
-    })
-    .catch(console.error);
+
+// function that reads json file 
+function loadJson() {
+  fetch('data.json')
+    .then((response) => response.json())
+    .then((json) => console.log(json.sounds));
 }
-// execute the function for each audio file
 
-for (let i = 0; i < audioFiles.length; i++)
-  getAudioData(audioFiles[i], i);
-*/
+// functiion that gehts server respons from freesound.org and returns preview url
+function getSoundUrl() { 
+  fetch('https://freesound.org/apiv2/search/text/?query=dog/')
+    .then((response) => response.json())
+    .then((json) => console.log(json));
+}
 
-// get audio data web 
-function loadWebSound(url,i) {
+// https://freesound.org/apiv2/sounds/<soundId>/?token=U9mJwlmAi3dbEvWYtkJaKe4GgY1Sl09KsiO5iC7b
+
+
+// function that loads audio buffer data from web in the audioBuffers array
+function loadWebSound(url, i) {
   var request = new XMLHttpRequest();
   request.open('GET', url, true);
   request.responseType = 'arraybuffer';
@@ -32,12 +32,10 @@ function loadWebSound(url,i) {
   // Decode asynchronously
   request.onload = function () {
     context.decodeAudioData(request.response, function (buffer) {
-      audioBuffers[i] = buffer;
-    }, console.log("error"));
+      audioBuffers[i] = buffer;});
   }
   request.send();
 }
-
 
 // connects an buffer from the audioBuffers array to a gain node and then to the destination, 
 // plays the sound at the given time
@@ -99,6 +97,7 @@ function returnAudioElement(name, channel) {
 
   `
 }
+// play button for testing
 document.querySelector("#playPauseButton").addEventListener("click", function (e) {
   playSoundAtTime(0, 0);
   playSoundAtTime(1, 1);
@@ -106,9 +105,13 @@ document.querySelector("#playPauseButton").addEventListener("click", function (e
   playSoundAtTime(3, 3);
   playSoundAtTime(0, 4);
 });
+// for testing
+loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3", 0)
+loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3", 1)
+loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3", 2)
+loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3", 3)
 
 createAudioDiv(audioFiles);
-loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3",0)
-loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3",1)
-loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3",2)
-loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3",3)
+loadJson();
+getSoundUrl();
+console.log(jsonData);

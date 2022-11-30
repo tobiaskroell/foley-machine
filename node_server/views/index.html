@@ -10,7 +10,9 @@
         <div id="overlay"></div>
         <div class="wrapper">
             <h1>Automatic&nbsp;Foley&nbsp;Machine</h1>
-            <p class="subline">Eye see what you did there</p>
+            <p class="subline">
+                Send us an animal video,<br>and we'll return matching sounds!     
+            </p>
             <form class="dropzone" method="POST" action="/upload" enctype="multipart/form-data" onsubmit="event.preventDefault();">
                 <div class="dropzone_input">
                     <input class="inputfile" id="file" name="file" type="file" accept="video/mp4">
@@ -25,10 +27,11 @@
                     <div id="is_loading"></div>
                 </div>
             </form>
+            <!-- Output Area -->
             <div class="output">
                 <div class="output_image hidden"></div>
                 <div class="output_text">
-                    <p>Angry cat sitting on a pile of gold in a goblin cave, realistic photograph</p>
+                    <p><!-- This could be output text if needed --></p>
                 </div>
                 <!-- Hidden audio output area -->
                 <div class="output_sound hidden">
@@ -42,6 +45,37 @@
                 </div>
                 <script src="/js/audio.js"></script>
             </div>
+            <!-- Info Collapsible -->
+            <ul>
+                <li>
+                    <input type="checkbox" checked>
+                    <i></i>
+                    <h2>How it works</h2>
+                    <p>
+                        This page is served by a node.js webserver, which is also responsible for temporarily 
+                        storing your video on its disk when you upload something.
+                        It then tells another server, which is runned by python, where to find your video.<br>
+                        On the Python server, there is running a programm using a pre-trained machine learning 
+                        model, based on the so called Yolov algorithm for object detection. After processing 
+                        and analyzing the video frames, the Python server then sends back the information 
+                        about what animals have been detected to the node.js webserver.  
+                        <br><br>
+                        Using this information, the webserver is now calling the API (Application Programming 
+                        Interface) of freesound.org, which is a huge collaborative database of audio files, 
+                        released under Creative Commons licenses.<br>
+                        Communicating with that API results in a list of audio files, which are then handed 
+                        over to the page you are looking at to create audio controls streaming the audio 
+                        directly from the freesound servers.<br>
+                        <br><br>              
+                        For ensuring that the sounds only play at a time corresponding to the actual animals 
+                        seen in the video content, we use timestamps. To manipulate these files with the 
+                        controls while playing, we make use of the Web Audio API - a powerful and versatile 
+                        system for controlling audio on the Web.  
+                        <br><br>
+                        And that's how the magic works!
+                    </p>
+                </li>
+              </ul>
         </div>
         <canvas id="waves"></canvas>
         <div class="background-pattern"></div>

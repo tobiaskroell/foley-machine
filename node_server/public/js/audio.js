@@ -66,9 +66,6 @@ function playSoundAtTime(i, time) {
 //create div elements with audio control elements attaches event listeners to sliders
 function createAudioDiv(jsonData) {
   let parentDiv = document.getElementById("audioElementsFrame");
-  let heading = document.createElement("h1")
-  heading.textContent = "Audio Mixer"
-  parentDiv.appendChild(heading)
 
   for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
     let channel = document.createElement("div")
@@ -101,19 +98,17 @@ function changeParameter(e, i) {
 // function that returns html for audio control elements
 function returnAudioElement(name, channel) {
   return `
-  <div>
-    <label for="name">${name}</label>
-  </div>
+
+  <h3 class="channelTitle">${name}</h3>
   <div>
     <label for="volume">Volume</label>
     <input class="slider" type="range" id="volumeSlider${channel}" name="volume" min="0" max="100" value="50">
-    <span id="volumeOutput${channel}" class="output"> 0.5 </span>
+    <p id="volumeOutput${channel}"> 0.5 </p>
   </div>
-
   <div>
     <label for="pan">Pan</label>
     <input class="slider" type="range" id="panningSlider${channel}" name="pan" min="-100" max="100" value="0">
-    <span id="panningOutput${channel}" class="output"> 0 </span>
+    <p id="panningOutput${channel}"> 0 </p>
   </div>
 
   `

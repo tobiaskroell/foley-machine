@@ -12,6 +12,8 @@ app.use(fileUpload());
 
 const https = require('https')
 
+import { animalList } from './animals';
+
 /***********
  ** Hosts **
  ***********/

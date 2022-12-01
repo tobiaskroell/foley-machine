@@ -37,10 +37,16 @@ import os
 import platform
 import sys
 from pathlib import Path
-
-import torch
-
+import torch 
+import re
 import pdb
+import ffmpeg
+from pprint import pprint # for printing Python dictionaries in a human-readable way
+
+
+
+
+
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -78,6 +84,7 @@ def run(
         half=False,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
         vid_stride=1,  # video frame-rate stride
+        frame_count=0,
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -86,6 +93,7 @@ def run(
     webcam = source.isnumeric() or source.endswith('.txt') or (is_url and not is_file)
     screenshot = source.lower().startswith('screen')
     res_list = []
+    detections_dict = {}
 
     if is_url and is_file:
         source = check_file(source)  # download
@@ -134,7 +142,6 @@ def run(
 
         # Second-stage classifier (optional)
         # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
-
         # Process predictions
         for i, det in enumerate(pred):  # per image
             seen += 1
@@ -147,7 +154,7 @@ def run(
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name)  # im.jpg
             txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
-            s += '%gx%g ' % im.shape[2:]  # print string
+            s += '%gx%g ' % im.shape[2:]  # Adds resolution to string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             imc = im0.copy() if save_crop else im0  # for save_crop
             annotator = Annotator(im0, line_width=line_thickness, example=str(names))
@@ -155,10 +162,17 @@ def run(
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
 
+                    
                 # Print results
                 for c in det[:, 5].unique():
                     n = (det[:, 5] == c).sum()  # detections per class
-                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add detection class to string (cat, dog, ...)
+                
+                # Add results to dict
+                for c in det[:, 5].unique():
+                    detected_frame = int(re.findall('\((.+?)\/', s)[0])
+                    detections_dict[f"{detected_frame * vid_stride}"] = re.findall('(?<=384x640).*$', s)[0]
+                    # pdb.set_trace()
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
@@ -205,9 +219,11 @@ def run(
                     vid_writer[i].write(im0)
 
         # Print time (inference-only)
-        inf_res = '' + f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms"
+
+        inf_res = '' + f"{s}{'' if len(det) else '(no detections), '}"
         res_list.append(inf_res)
-        LOGGER.info(inf_res)
+    print(detections_dict)
+        # LOGGER.info(inf_res)
 
     # Print results
     t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
@@ -217,7 +233,9 @@ def run(
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
-    print('\n\n res_list: ', res_list)
+    # print('\n\n res_list: ', res_list)
+
+    return detections_dict
 
 
 def parse_opt():
@@ -260,24 +278,27 @@ def main(opt):
     run(**vars(opt))
 
 
-def main_modified(video_name):
+def main_modified(video_name, frame_count):
     check_requirements(exclude=('tensorboard', 'thop'))
     run(
-        source=f'..\\input_video\\{video_name}',
+        source=f'..\\node_server\\public\\video\\{video_name}',
         data='data/coco128.yaml',
         weights='yolov5s.pt',
         conf_thres=0.25,
         device='0',
-        vid_stride=1000,
+        vid_stride=150,
         nosave=True,
         save_txt=True,
+        frame_count=frame_count,
     )
 
 
 if __name__ == "__main__":
-    opt = parse_opt()
+    # opt = parse_opt()
     # print('OPT::::::::::::::')
     # print(opt)
     # main(opt)
-    main_modified('animals.mp4')
+
+
+    main_modified('animals.mp4', 6572)
     

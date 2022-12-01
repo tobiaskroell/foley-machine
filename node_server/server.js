@@ -10,7 +10,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 let fileUpload = require('express-fileupload');
 app.use(fileUpload());
 
-const https = require('https')
+let ffprobe = require('ffprobe'), ffprobeStatic = require('ffprobe-static');
+
+const https = require('https');
+
+const { animalList } = require('./animals.js');
 
 /***********
  ** Hosts **
@@ -38,21 +42,42 @@ app.get('/', function(req, res) {
 });
 
 app.post('/upload', /*async*/ (req, res) => {
-    // Save uploaded file to disk
-    const file = req.files.file;
+  // Read file and check for mp4
+  const file = req.files.file;
     if (file.mimetype != 'video/mp4') {
         res.status(400).send('Please make sure you have uploaded a video file (mp4).');
         return;
     }
-    const fileName = Date.now() + ".mp4"; 
-    file.mv(__dirname + '/public/video/' + fileName);
+    let fps;
+    let duration;
+    const fileName = Date.now() + ".mp4";
+    file.mv(__dirname + '/public/video/' + fileName, () => { // Write file, then read metadata
+      ffprobe(`./public/video/${fileName}`, { path: ffprobeStatic.path }, function(err, info) {
+        if (err) {
+          console.log(err)
+          return;
+        } 
+        fps = parseFloat(info.streams[0].r_frame_rate);
+      });
+    });
+    
+    // TODO: Create JSON object to send to Python server
 
     // Make request to python server
     // TODO: Activate following two lines
     // const completeFilePath = '/node_server/public/video/' + fileName;
-    // const pythonPostResponse = await post(pyServer + pyPath, completeFilePath)
-    
-    res.send("This is a test response.");
+    // const pythonPostResponse = await post(pyServer + pyPath, JSON);
+
+    // API 
+
+
+    // JSON with freesound results
+    // {
+    //  cat: {timestamp: 1234567, audiosource: https://freesound.org/...}}, 
+    //  horse: {}, 
+    //  ...
+    // }
+    res.send("Test response");
 });
 
 /**********************

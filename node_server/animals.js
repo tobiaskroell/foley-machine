@@ -1,4 +1,4 @@
-export const animalList = [
+const animalList = [
 	"wild bird",
 	"horse",
 	"dog",
@@ -462,3 +462,5 @@ export const animalList = [
 	"lionfish",
 	"pufferfish"
 ]
+
+module.exports = { animalList };

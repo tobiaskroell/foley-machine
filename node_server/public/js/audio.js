@@ -2,6 +2,7 @@ var context = new AudioContext();
 var audioBuffers = [];
 var bufferSourceNodes = [];
 var gainNodes = [];
+var panningNodes = [];
 var jsonData;
 
 var soundList =`
@@ -9,7 +10,8 @@ var soundList =`
   "soundList":
     [{ "name": "cat", "time": 1, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
       , { "name": "dog", "time": 2, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
-      , { "name": "chicken", "time": 3, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }]
+      , { "name": "chicken", "time": 3, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
+      , { "name": "bird", "time": 3.5, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }]
 } 
 `
 
@@ -50,7 +52,13 @@ function playSoundAtTime(i, time) {
     gainNodes[i] = context.createGain();
     gainNodes[i].gain.value = 0.5;
   }
-  bufferSourceNodes[i].connect(gainNodes[i]);
+  if (typeof panningNodes[i] == 'undefined') {
+    panningNodes[i] = context.createStereoPanner();
+    panningNodes[i].pan.value = 0;
+  }
+
+  bufferSourceNodes[i].connect(panningNodes[i]);
+  panningNodes[i].connect(gainNodes[i]);
   gainNodes[i].connect(context.destination);
   bufferSourceNodes[i].start(context.currentTime + time);
 }
@@ -71,6 +79,9 @@ function createAudioDiv(jsonData) {
     document.querySelector("#volumeSlider" + i).addEventListener("input", function (e) {
       changeParameter(e, i)
     });
+    document.querySelector("#panningSlider" + i).addEventListener("input", function (e) {
+      changeParameter(e, i)
+    });
   }
 }
 // event handler for all sliders
@@ -81,9 +92,9 @@ function changeParameter(e, i) {
       gainNodes[i].gain.value = e.target.value / 100;
 
       break;
-    case "detuneSlider":
-      filter.detune.value = (this.value);
-      document.querySelector("#detuneOutput").innerHTML = (this.value) + " cents";
+    case "panningSlider" + i:
+      document.querySelector("#panningOutput"+i).innerHTML = (e.target.value/100) + " ";
+      panningNodes[i].pan.value = e.target.value/100;
       break;
   }
 }
@@ -91,13 +102,19 @@ function changeParameter(e, i) {
 function returnAudioElement(name, channel) {
   return `
   <div>
-  <label for="name">${name}</label>
+    <label for="name">${name}</label>
   </div>
-    <div>
+  <div>
     <label for="volume">Volume</label>
     <input class="slider" type="range" id="volumeSlider${channel}" name="volume" min="0" max="100" value="50">
     <span id="volumeOutput${channel}" class="output"> 0.5 </span>
-    </div>
+  </div>
+
+  <div>
+    <label for="pan">Pan</label>
+    <input class="slider" type="range" id="panningSlider${channel}" name="pan" min="-100" max="100" value="0">
+    <span id="panningOutput${channel}" class="output"> 0 </span>
+  </div>
 
   `
 }

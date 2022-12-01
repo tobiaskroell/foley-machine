@@ -4,24 +4,27 @@ var bufferSourceNodes = [];
 var gainNodes = [];
 var jsonData;
 
-audioFiles = ["sound1", "sound2", "sound3", "sound4"];
+var soundList =`
+{
+  "soundList":
+    [{ "name": "cat", "time": 1, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
+      , { "name": "dog", "time": 2, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
+      , { "name": "chicken", "time": 3, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }]
+} 
+`
 
-// function that reads json file 
-function loadJson() {
-  fetch('data.json')
-    .then((response) => response.json())
-    .then((json) => console.log(json.sounds));
+// function that reads soundList and creates audio control elements
+function loadAudioElements(data) {
+  console.log('loadAudioElements')
+  let jsonData = JSON.parse(data)
+  console.log(Object.keys(jsonData.soundList).length);
+
+  for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
+
+    loadWebSound(jsonData.soundList[i].url, i);
+  }
+  createAudioDiv(jsonData);
 }
-
-// functiion that gehts server respons from freesound.org and returns preview url
-function getSoundUrl() { 
-  fetch('https://freesound.org/apiv2/search/text/?query=dog/')
-    .then((response) => response.json())
-    .then((json) => console.log(json));
-}
-
-// https://freesound.org/apiv2/sounds/<soundId>/?token=U9mJwlmAi3dbEvWYtkJaKe4GgY1Sl09KsiO5iC7b
-
 
 // function that loads audio buffer data from web in the audioBuffers array
 function loadWebSound(url, i) {
@@ -32,7 +35,8 @@ function loadWebSound(url, i) {
   // Decode asynchronously
   request.onload = function () {
     context.decodeAudioData(request.response, function (buffer) {
-      audioBuffers[i] = buffer;});
+      audioBuffers[i] = buffer;
+    });
   }
   request.send();
 }
@@ -52,17 +56,17 @@ function playSoundAtTime(i, time) {
 }
 
 //create div elements with audio control elements attaches event listeners to sliders
-function createAudioDiv(audioFiles) {
+function createAudioDiv(jsonData) {
   let parentDiv = document.getElementById("audioElementsFrame");
   let heading = document.createElement("h1")
   heading.textContent = "Audio Mixer"
   parentDiv.appendChild(heading)
 
-  for (let i = 0; i < audioFiles.length; i++) {
+  for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
     let channel = document.createElement("div")
     channel.setAttribute("class", "channel")
     channel.setAttribute("id", `channel${i}`)
-    channel.innerHTML = returnAudioElement(audioFiles[i], i)
+    channel.innerHTML = returnAudioElement(jsonData.soundList[i].name, i)
     parentDiv.appendChild(channel)
     document.querySelector("#volumeSlider" + i).addEventListener("input", function (e) {
       changeParameter(e, i)
@@ -99,19 +103,14 @@ function returnAudioElement(name, channel) {
 }
 // play button for testing
 document.querySelector("#playPauseButton").addEventListener("click", function (e) {
+  console.log("play")
   playSoundAtTime(0, 0);
   playSoundAtTime(1, 1);
   playSoundAtTime(2, 2);
   playSoundAtTime(3, 3);
   playSoundAtTime(0, 4);
-});
-// for testing
-loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3", 0)
-loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3", 1)
-loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3", 2)
-loadWebSound("https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3", 3)
 
-createAudioDiv(audioFiles);
-loadJson();
-getSoundUrl();
-console.log(jsonData);
+});
+
+loadAudioElements(soundList);
+

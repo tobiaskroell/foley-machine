@@ -511,6 +511,11 @@ ul li input[type=checkbox]:checked ~ i:after {
   width: 100%;
 }
 
+.audioElementsFrame .channel div p {
+  text-align: right;
+}
+
+
 
 /* Responsive Sizes */
 

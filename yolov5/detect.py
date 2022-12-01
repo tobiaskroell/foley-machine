@@ -37,15 +37,11 @@ import os
 import platform
 import sys
 from pathlib import Path
-import torch 
+import torch
 import re
 import pdb
 import ffmpeg
-from pprint import pprint # for printing Python dictionaries in a human-readable way
-
-
-
-
+from pprint import pprint  # for printing Python dictionaries in a human-readable way
 
 
 FILE = Path(__file__).resolve()
@@ -85,6 +81,8 @@ def run(
         dnn=False,  # use OpenCV DNN for ONNX inference
         vid_stride=1,  # video frame-rate stride
         frame_count=0,
+        video_name='',
+        total_frames=0,
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -93,7 +91,34 @@ def run(
     webcam = source.isnumeric() or source.endswith('.txt') or (is_url and not is_file)
     screenshot = source.lower().startswith('screen')
     res_list = []
-    detections_dict = {}
+    detections_dict_exmpl = {
+        "file": {video_name},
+        "total_frames": {total_frames},
+        "objects": [
+            {
+                "01": [
+                    {
+                        "object_": "cat",
+                        "count": 2,
+                    },
+
+                    {
+                        "object_": "dog",
+                        "count": 1,
+                    },
+                ],
+
+                "02": [
+                    {
+                        "object_": "horse",
+                        "count": 3,
+                    },
+                ],
+            }
+        ]
+    }
+    pdb.set_trace()
+    print(detections_dict_exmpl['detections'][0]['01'][0]['object_'])
 
     if is_url and is_file:
         source = check_file(source)  # download
@@ -162,17 +187,34 @@ def run(
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
 
-                    
                 # Print results
                 for c in det[:, 5].unique():
                     n = (det[:, 5] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add detection class to string (cat, dog, ...)
+
+                # # Add detections to dict
+                # for c in det[:, 5].unique():
+                #     detected_frame = int(re.findall('\((.+?)\/', s)[0])
+                #     detections_dict[f"{detected_frame * vid_stride}"] = re.findall('(?<=384x640).*$', s)[0]
+                #     # pdb.set_trace()
+
+                # Add detections to dict
+                detected_frame = int(re.findall('\((.+?)\/', s)[0])  # get frame number
+                detections_in_frame = re.findall('(?<=384x640).*$', s)[0]  # get detection string
+                detections_in_frame = detections_in_frame.split(',')  # split into list
+                detections_in_frame = list(map(lambda x: x.strip(), detections_in_frame))  # remove whitespace
+                detections_in_frame = [x for x in detections_in_frame if x]  # remove empty strings
                 
-                # Add results to dict
-                for c in det[:, 5].unique():
-                    detected_frame = int(re.findall('\((.+?)\/', s)[0])
-                    detections_dict[f"{detected_frame * vid_stride}"] = re.findall('(?<=384x640).*$', s)[0]
-                    # pdb.set_trace()
+                #TODO: add to dict
+                # detections_dict[f"{detected_frame * vid_stride}"] = {x for x in detections_in_frame}  # add to dict
+                pdb.set_trace()
+                
+                
+                
+                # detections_dict[f"{detected_frame * vid_stride}"] = {}
+                # for c in det[:, 5].unique():
+
+                #     # pdb.set_trace()
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
@@ -222,7 +264,7 @@ def run(
 
         inf_res = '' + f"{s}{'' if len(det) else '(no detections), '}"
         res_list.append(inf_res)
-    print(detections_dict)
+
         # LOGGER.info(inf_res)
 
     # Print results
@@ -233,8 +275,10 @@ def run(
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
-    # print('\n\n res_list: ', res_list)
 
+    # print('\n\n res_list: ', res_list)
+    for k, v in detections_dict.items():
+        print(f"{k}: {v}")
     return detections_dict
 
 
@@ -290,6 +334,7 @@ def main_modified(video_name, frame_count):
         nosave=True,
         save_txt=True,
         frame_count=frame_count,
+        video_name=video_name,
     )
 
 
@@ -299,6 +344,4 @@ if __name__ == "__main__":
     # print(opt)
     # main(opt)
 
-
     main_modified('animals.mp4', 6572)
-    

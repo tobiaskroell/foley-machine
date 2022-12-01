@@ -21,7 +21,7 @@ body {
     font-style: italic;
     font-weight: 500; */
 
-    font-family: 'Space Mono';
+    font-family: 'Space Mono', monospace;
     font-weight: 400;
 
     font-size: 1rem;
@@ -242,7 +242,7 @@ h1 {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .output > div {
@@ -262,7 +262,7 @@ h1 {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     width: 100%;
 }
@@ -282,7 +282,7 @@ label {
 }
 
 input[type=range].slider {
-    width: 50%;
+    width: 100%;
     margin: 0.7px 0;
     background-color: transparent;
     -webkit-appearance: none;
@@ -469,6 +469,54 @@ ul li input[type=checkbox]:checked ~ i:after {
   transform: translate(-2px, 0) rotate(-45deg);
 }
 
+/* Audio Mixer Styles */
+
+.audioElementsFrame .channel {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background-color: rgba(245, 240, 246, 0.05);
+  border-radius: 25px;
+  border: 1px solid rgba(255,255,255,0.5);
+  margin: 1rem;
+  padding: 2rem;
+}
+
+.audioElementsFrame .channel h3.channelTitle {
+  font-family: 'Space Mono', monospace;
+  color: #F5F0F6;
+  text-transform: capitalize;
+  font-size: 1.8rem;
+  margin: 0 0 1rem 0;
+  text-align: center;
+  width: 100%;
+  text-decoration: underline;
+}
+
+.audioElementsFrame .channel div {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.audioElementsFrame .channel div > label,
+.audioElementsFrame .channel div p {
+  font-family: 'Space Mono', monospace;
+  color: #F5F0F6;
+  text-transform: capitalize;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0.5rem 0;
+  width: 100%;
+}
+
+.audioElementsFrame .channel div p {
+  text-align: right;
+}
+
+
+
 /* Responsive Sizes */
 
 /* X-Small devices */
@@ -480,12 +528,18 @@ ul li input[type=checkbox]:checked ~ i:after {
   h1 {
     font-size: 1.7rem;
   }
+  h2 {
+    font-size: 1.5rem;
+  }
 }
 
 /* Small devices */
 @media (min-width: 576px) and (max-width: 767.98px) { 
   h1 {
     font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.5rem;
   }
 }
 
@@ -494,12 +548,18 @@ ul li input[type=checkbox]:checked ~ i:after {
   h1 {
     font-size: 3rem;
   }
+  h2 {
+    font-size: 1.5rem;
+  }
 }
 
 /* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) and (max-width: 1199.98px) {
   h1 {
     font-size: 3.5rem;
+  }
+  h2 {
+    font-size: 1.75rem;
   }
 }
 
@@ -508,6 +568,9 @@ ul li input[type=checkbox]:checked ~ i:after {
   h1 {
     font-size: 4rem;
   }
+  h2 {
+    font-size: 2rem;
+  }
 }
 
 /* XX-Large devices (larger desktops, 1400px and up) */
@@ -515,11 +578,23 @@ ul li input[type=checkbox]:checked ~ i:after {
   h1 {
     font-size: 5rem;
   }
+  h2 {
+    font-size: 2.5rem;
+  }
+  .wrapper {
+    max-width: 1280px;
+  }
 }
 
 @media (min-width: 2560px) {
   h1 {
     font-size: 6rem;
+  }
+  h2 {
+    font-size: 3rem;
+  }
+  .wrapper {
+    max-width: 1680px;
   }
 }
 

@@ -48,25 +48,35 @@ app.post('/upload', /*async*/ (req, res) => {
         res.status(400).send('Please make sure you have uploaded a video file (mp4).');
         return;
     }
-    let fps;
-    let duration;
+    let fps, duration, frameCount;
     const fileName = Date.now() + ".mp4";
+    const completeFilePath = '/node_server/public/video/' + fileName;
     file.mv(__dirname + '/public/video/' + fileName, () => { // Write file, then read metadata
       ffprobe(`./public/video/${fileName}`, { path: ffprobeStatic.path }, function(err, info) {
         if (err) {
           console.log(err)
           return;
         } 
+        console.log(info);
         fps = parseFloat(info.streams[0].r_frame_rate);
+        frameCount = parseInt(info.streams[0].nb_frames); // nb_frames not always accurate or available
+        if (frameCount == 0) {
+          duration = parseFloat(info.format.duration);
+          frameCount = Math.round(duration * fps);
+        }
       });
     });
     
-    // TODO: Create JSON object to send to Python server
+    // Create JSON object
+    const data = {
+      "isYouTube": false,
+      "filepath": completeFilePath,
+      "frameCount": frameCount
+    };
 
     // Make request to python server
-    // TODO: Activate following two lines
-    // const completeFilePath = '/node_server/public/video/' + fileName;
-    // const pythonPostResponse = await post(pyServer + pyPath, JSON);
+    // TODO: Activate following line
+    // const pythonPostResponse = await post(pyServer + pyPath, data);
 
     // API 
 

@@ -21,7 +21,9 @@ Install dependencies with npm
 ```
 
 ### Python server
-    
+```
+tbd
+```
 ## Run Locally
 
 ### Start Node server
@@ -37,7 +39,9 @@ Start the server
 ```
 
 ### Start Python server
-
+```
+uvicorn main:app --reload
+```
 
 ## API Reference
 

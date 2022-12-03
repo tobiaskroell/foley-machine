@@ -13,6 +13,7 @@ app.use(fileUpload());
 let ffprobe = require('ffprobe'), ffprobeStatic = require('ffprobe-static');
 
 const https = require('https');
+const fs = require("fs");
 
 const { animalList } = require('./animals.js');
 
@@ -37,14 +38,16 @@ app.use(express.static(__dirname + '/public'));
 /**********************
  ** Request handlers **
  **********************/
+// Get Page
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/views/index.html');
 });
 
+// Upload video file
 app.post('/upload', /*async*/ (req, res) => {
   const link = req.body.link != undefined ? req.body.link : false;
   const file = req.files ? req.files.file : false;
-  let filepath, fps, duration, frameCount;
+  let filename, filepath, fps, duration, frameCount;
 
   if (file != false) {
     // Read file and check for mp4
@@ -52,10 +55,10 @@ app.post('/upload', /*async*/ (req, res) => {
           res.status(400).send('Please make sure you have uploaded a video file (mp4).');
           return;
       }
-      const fileName = Date.now() + ".mp4";
-      filepath = '../node_server/public/video/' + fileName;
-      file.mv(__dirname + '/public/video/' + fileName, () => { // Write file, then read metadata
-        ffprobe(`./public/video/${fileName}`, { path: ffprobeStatic.path }, function(err, info) {
+      filename = Date.now() + ".mp4";
+      filepath = '../node_server/public/video/' + filename;
+      file.mv(__dirname + '/public/video/' + filename, () => { // Write file, then read metadata
+        ffprobe(`./public/video/${filename}`, { path: ffprobeStatic.path }, function(err, info) {
           if (err) {
             console.log(err)
             return;
@@ -116,7 +119,19 @@ app.post('/upload', /*async*/ (req, res) => {
           , { "name": "chicken", "time": 3, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
           , { "name": "bird", "time": 3.5, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }]
     }  */
-    res.send(`Filepath: ${filepath} | Frame count: ${frameCount}`);
+    res.send({filename: filename}); // ATTENTION: filename needs to be included in the response!
+});
+
+// Delete specific video file
+app.post('/', function(req, res) {
+    console.log(req.body.file);
+    if (req.body.file != undefined) {
+      const filename = req.body.file;
+      fs.unlinkSync(__dirname + '/public/video/' + filename);
+      res.send({success: true})
+    } else {
+      res.send({success: false});
+    } 
 });
 
 /**********************

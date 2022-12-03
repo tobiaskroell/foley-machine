@@ -42,52 +42,81 @@ app.get('/', function(req, res) {
 });
 
 app.post('/upload', /*async*/ (req, res) => {
-  // Read file and check for mp4
-  const file = req.files.file;
-    if (file.mimetype != 'video/mp4') {
-        res.status(400).send('Please make sure you have uploaded a video file (mp4).');
-        return;
-    }
-    let fps, duration, frameCount;
-    const fileName = Date.now() + ".mp4";
-    const completeFilePath = '/node_server/public/video/' + fileName;
-    file.mv(__dirname + '/public/video/' + fileName, () => { // Write file, then read metadata
-      ffprobe(`./public/video/${fileName}`, { path: ffprobeStatic.path }, function(err, info) {
-        if (err) {
-          console.log(err)
+  const link = req.body.link != undefined ? req.body.link : false;
+  const file = req.files ? req.files.file : false;
+  let filepath, fps, duration, frameCount;
+
+  if (file != false) {
+    // Read file and check for mp4
+      if (file.mimetype != 'video/mp4') {
+          res.status(400).send('Please make sure you have uploaded a video file (mp4).');
           return;
-        } 
-        console.log(info);
-        fps = parseFloat(info.streams[0].r_frame_rate);
-        frameCount = parseInt(info.streams[0].nb_frames); // nb_frames not always accurate or available
-        if (frameCount == 0) {
-          duration = parseFloat(info.format.duration);
-          frameCount = Math.round(duration * fps);
-        }
+      }
+      const fileName = Date.now() + ".mp4";
+      filepath = '../node_server/public/video/' + fileName;
+      file.mv(__dirname + '/public/video/' + fileName, () => { // Write file, then read metadata
+        ffprobe(`./public/video/${fileName}`, { path: ffprobeStatic.path }, function(err, info) {
+          if (err) {
+            console.log(err)
+            return;
+          }
+          fps = parseFloat(info.streams[0].r_frame_rate);
+          frameCount = parseInt(info.streams[0].nb_frames); // nb_frames not always accurate or available
+          if (frameCount == 0) {
+            duration = parseFloat(info.format.duration);
+            frameCount = Math.round(duration * fps);
+          }
+        });
       });
-    });
+    } else {
+      filepath = link;
+      frameCount = null;
+    }
     
     // Create JSON object
     const data = {
-      "isYouTube": false,
-      "filepath": completeFilePath,
+      "filepath": filepath,
       "frameCount": frameCount
     };
 
     // Make request to python server
     // TODO: Activate following line
     // const pythonPostResponse = await post(pyServer + pyPath, data);
+    /* {
+      "file": {video_name},
+      "total_frames": {total_frames},
+      "objects":
+        {
+          "01": [
+            {
+              "object_": "cat",
+              "count": 2,
+            },
+            {
+              "object_": "dog",
+              "count": 1,
+            },
+          ],
+          "02": [
+            {
+              "object_": "horse",
+              "count": 3,
+            },
+          ],
+        }
+    } */
 
-    // API 
-
+    // TODO: API call freesound.org
 
     // JSON with freesound results
-    // {
-    //  cat: {timestamp: 1234567, audiosource: https://freesound.org/...}}, 
-    //  horse: {}, 
-    //  ...
-    // }
-    res.send("Test response");
+    /* {
+      "soundList":
+        [{ "name": "cat", "time": 1, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
+          , { "name": "dog", "time": 2, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
+          , { "name": "chicken", "time": 3, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
+          , { "name": "bird", "time": 3.5, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }]
+    }  */
+    res.send(`Filepath: ${filepath} | Frame count: ${frameCount}`);
 });
 
 /**********************

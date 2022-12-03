@@ -40,16 +40,40 @@ function dropzoneHandler($dropzone, $input) {
             })
             .on('dragover dragenter', function() {
                 $dropzone.addClass('is_dragover');
+                $('.labelYouTube').addClass('invisible');
+                $('.inputYouTube').addClass('invisible');
             })
             .on('dragleave dragend drop', function() {
                 $dropzone.removeClass('is_dragover');
+                $('.labelYouTube').removeClass('invisible');
+                $('.inputYouTube').removeClass('invisible');
             })
             // Read dropped file and trigger submit
             .on('drop', function(e) {
                 video = e.originalEvent.dataTransfer.files[0]; // returns list of files that where dropped
-                console.log(video);
                 if (!fileIsMp4(video, $dropzone)) return;
                 $dropzone.trigger('submit');
+            });
+        // YouTube link input
+        const $inputYouTube = $('.inputYouTube');
+        $inputYouTube
+            .on('paste', function(e) {
+                e.preventDefault();
+                const pasteData = e.originalEvent.clipboardData.getData('text');
+                setTimeout(() => { 
+                    $inputYouTube.val(pasteData);
+                    if (checkLinkInput($inputYouTube.val())) $dropzone.trigger('submit');
+                    else $inputYouTube.css('border-color', 'red');
+                    setTimeout(() => { $inputYouTube.css('border-color', 'white'); }, 1000);
+                    console.log($inputYouTube.val());
+                 }, 50);
+            })
+            .on('focus', function(e) {
+                $inputYouTube.val('');
+                $('.buttonYouTube').addClass('hidden');
+            })
+            .on('input', function(e) {
+                $('.buttonYouTube').removeClass('hidden');
             });
     }
     // Catch submit event and post via AJAX
@@ -65,7 +89,7 @@ function dropzoneHandler($dropzone, $input) {
         if (hasAdvancedFeatures) {
             let formData = new FormData();
             if (video) formData.append('file', video);
-            console.log(formData);
+            if ($('.inputYouTube').val()) formData.append('link', $('.inputYouTube').val());
             
             // ajax request
             $.ajax({
@@ -82,7 +106,6 @@ function dropzoneHandler($dropzone, $input) {
                     //$(".is_processing").addClass('hidden'); // TODO: uncomment, when debugging complete 
                 },
                 success: function(data) {
-                    $dropzone.addClass( data.success == true ? 'is_success' : 'is_error' );
                     // TODO: Append correct response, change elements on page
                     // Receive JSON response from server and call audio.js function for appending audio elements
                     $(".dropzone").append(`<p>${data}</p>`); // FOR DEBUGGING
@@ -112,9 +135,20 @@ function dropzoneHandler($dropzone, $input) {
 function fileIsMp4(file, form) {
     if (file.type != 'video/mp4') {
         form.removeClass('is_uploading');
+        /* $('.inputYouTube').removeClass('invisible'); */
         form.addClass('is_error');
         alert("Please make sure you have uploaded a video file (mp4).");
         return false;
     }
     return true;
+}
+
+// Check input for valid youtube link and trigger post request
+function checkLinkInput(value) {
+    const regex = /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/
+    let link = value;
+    if (regex.test(link)) {
+        return true;
+    }
+    return false;
 }

@@ -365,12 +365,12 @@ input[type=range].slider {
     cursor: pointer;
   }
   input[type=range].slider::-webkit-slider-thumb {
-    margin-top: -0.7px;
-    width: 18px;
-    height: 27px;
-    background: #f03f35;
-    border: 0px solid rgba(125, 60, 48, 0);
-    border: 0;
+    margin-top: 2px;
+    width: 13px;
+    height: 22px;
+    background: #7FB069;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: inset 1px 1px 6px rgba(0,0,0,.6);
     cursor: pointer;
     -webkit-appearance: none;
   }
@@ -378,52 +378,58 @@ input[type=range].slider {
     background: #5e6565;
   }
   input[type=range].slider::-moz-range-track {
-    background: #484d4d;
-    border: 0;
+    background: transparent;
+    border: 1px solid white;
+    border-radius: 15px;
+    box-shadow: inset 2px 5px 12px rgba(0,0,0,0.8);
     width: 100%;
-    height: 25.6px;
+    height: 22px;
     cursor: pointer;
   }
   input[type=range].slider::-moz-range-thumb {
-    width: 18px;
-    height: 27px;
-    background: #f03f35;
-    border: 0px solid rgba(125, 60, 48, 0);
-    border: 0;
+    margin-top: -0.7px;
+    width: 13px;
+    height: 22px;
+    background: #7FB069;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: inset 1px 1px 6px rgba(0,0,0,.6);
     cursor: pointer;
+    -webkit-appearance: none;
   }
   input[type=range].slider::-ms-track {
     background: transparent;
-    border-color: transparent;
-    border-width: 0.7px 0;
-    color: transparent;
+    border: 1px solid white;
+    border-radius: 15px;
+    box-shadow: inset 2px 5px 12px rgba(0,0,0,0.8);
     width: 100%;
-    height: 25.6px;
+    height: 22px;
     cursor: pointer;
   }
   input[type=range].slider::-ms-fill-lower {
-    background: #323535;
+    background: transparent;
     border: 0;
   }
   input[type=range].slider::-ms-fill-upper {
-    background: #484d4d;
+    background: transparent;
     border: 0;
   }
   input[type=range].slider::-ms-thumb {
-    width: 18px;
-    height: 27px;
-    background: #f03f35;
-    border: 0px solid rgba(125, 60, 48, 0);
-    border: 0;
+    margin-top: -0.7px;
+    width: 13px;
+    height: 22px;
+    background: #7FB069;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: inset 1px 1px 6px rgba(0,0,0,.6);
     cursor: pointer;
+    -webkit-appearance: none;
     margin-top: 0px;
     /*Needed to keep the Edge thumb centred*/
   }
   input[type=range].slider:focus::-ms-fill-lower {
-    background: #484d4d;
+    background: transparent;
   }
   input[type=range].slider:focus::-ms-fill-upper {
-    background: #5e6565;
+    background: transparent;
   }
   @supports (-ms-ime-align:auto) {
     input[type=range].slider {
@@ -547,7 +553,7 @@ ul li input[type=checkbox]:checked ~ i:after {
   border-radius: 25px;
   border: 1px solid rgba(255,255,255,0.5);
   margin: 1rem;
-  padding: 2rem;
+  padding: 0 1.5rem;
 }
 
 .audioElementsFrame .channel h3.channelTitle {
@@ -582,7 +588,42 @@ ul li input[type=checkbox]:checked ~ i:after {
   text-align: right;
 }
 
+input.powerswitch {
+  position: relative;
+  appearance: none;
+  outline: none;
+  width: 25px;
+  height: 15px;
+  top: 10px;
+  left: -18px;
+  background-color: #ffffff;
+  border: 1px solid #F5F0F6;
+  border-radius: 50px;
+  box-shadow: inset -20px 0 0 0 #F5F0F6;
+  transition-duration: 200ms;
+}
 
+  input.powerswitch:after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    /* left: 1px; */
+    width: 13px;
+    height: 13px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow: 2px 4px 6px rgba(0,0,0,0.2);
+  }
+
+  input.powerswitch:checked {
+    border-color: #F5F0F6;
+    box-shadow: inset 20px 0 0 0 #7FB069;
+  }
+
+  input.powerswitch:checked:after {
+    left: 10px;
+    box-shadow: -2px 4px 3px rgba(0,0,0,0.05);
+  }
 
 /* Responsive Sizes */
 

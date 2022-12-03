@@ -99,11 +99,12 @@ function changeParameter(e, i) {
 function returnAudioElement(name, channel) {
   return `
 
+  <input type="checkbox" name="power" class="powerswitch" checked>
   <h3 class="channelTitle">${name}</h3>
   <div>
     <label for="volume">Volume</label>
     <input class="slider" type="range" id="volumeSlider${channel}" name="volume" min="0" max="100" value="50">
-    <span id="volumeOutput${channel}" class="output"> 50 </span>
+    <p id="volumeOutput${channel}"> 50 </p>
   </div>
   <div>
     <label for="pan">Pan</label>

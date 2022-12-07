@@ -3,28 +3,34 @@ var audioBuffers = [];
 var bufferSourceNodes = [];
 var gainNodes = [];
 var panningNodes = [];
-var jsonData;
+var filterNodes = [];
 
 var soundList =`
 {
   "soundList":
-    [{ "name": "cat", "time": 1, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
-      , { "name": "dog", "time": 2, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
-      , { "name": "chicken", "time": 3, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
-      , { "name": "bird", "time": 3.5, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }]
+    [{ "name": "cat", "time": 1, "url": "https://cdn.freesound.org/previews/412/412016_3652520-lq.mp3" }
+      , { "name": "dog", "time": 3, "url": "https://cdn.freesound.org/previews/160/160092_2888453-lq.mp3" }
+      , { "name": "chicken", "time": 5, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
+      , { "name": "bird", "time": 7, "url": "https://cdn.freesound.org/previews/340/340861_6083171-lq.mp3" }]
 } 
 `
 
-// function that reads soundList and creates audio control elements
+// function that reads soundList and creates audio control elements and WebAudio Nodes
 function loadAudioElements(data) {
-  console.log('loadAudioElements')
   let jsonData = JSON.parse(data)
-  console.log(Object.keys(jsonData.soundList).length);
-
   for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
 
     loadWebSound(jsonData.soundList[i].url, i);
+      gainNodes[i] = context.createGain();
+      gainNodes[i].gain.value = 0.5;
+      panningNodes[i] = context.createStereoPanner();
+      panningNodes[i].pan.value = 0;
+      filterNodes[i] = context.createBiquadFilter();
+      filterNodes[i].type = "notch";
+      panningNodes[i].connect(gainNodes[i]);
+      gainNodes[i].connect(context.destination);
   }
+  
   createAudioDiv(jsonData);
 }
 
@@ -47,19 +53,9 @@ function loadWebSound(url, i) {
 // plays the sound at the given time
 function playSoundAtTime(i, time) {
   bufferSourceNodes[i] = context.createBufferSource();
+  bufferSourceNodes[i].playbackRate.value = document.querySelector("#pitchOutput" + i).innerHTML
   bufferSourceNodes[i].buffer = audioBuffers[i];
-  if (typeof gainNodes[i] == 'undefined') {
-    gainNodes[i] = context.createGain();
-    gainNodes[i].gain.value = 0.5;
-  }
-  if (typeof panningNodes[i] == 'undefined') {
-    panningNodes[i] = context.createStereoPanner();
-    panningNodes[i].pan.value = 0;
-  }
-
   bufferSourceNodes[i].connect(panningNodes[i]);
-  panningNodes[i].connect(gainNodes[i]);
-  gainNodes[i].connect(context.destination);
   bufferSourceNodes[i].start(context.currentTime + time);
 }
 
@@ -79,6 +75,9 @@ function createAudioDiv(jsonData) {
     document.querySelector("#panningSlider" + i).addEventListener("input", function (e) {
       changeParameter(e, i)
     });
+    document.querySelector("#pitchSlider" + i).addEventListener("input", function (e) {
+      changeParameter(e, i)
+    });
   }
 }
 // event handler for all sliders
@@ -92,6 +91,12 @@ function changeParameter(e, i) {
     case "panningSlider" + i:
       document.querySelector("#panningOutput"+i).innerHTML = (e.target.value/100) + " ";
       panningNodes[i].pan.value = e.target.value/100;
+      break;
+    case "pitchSlider" + i:
+      console.log("hello")
+      document.querySelector("#pitchOutput" + i).innerHTML = (e.target.value/100);
+      bufferSourceNodes[i].playbackRate.value = e.target.value/100;
+      console.log(bufferSourceNodes[i].playbackRate.value)
       break;
   }
 }
@@ -111,18 +116,25 @@ function returnAudioElement(name, channel) {
     <input class="slider" type="range" id="panningSlider${channel}" name="pan" min="-100" max="100" value="0">
     <p id="panningOutput${channel}"> 0 </p>
   </div>
+  <div>
+  <label for="pitch">Pitch</label>
+  <input class="slider" type="range" id="pitchSlider${channel}" name="pitch" min="0" max="200" value="100">
+  <p id="pitchOutput${channel}"> 1 </p>
+</div>
 
   `
+}
+function testButton(data) {
+  console.log('testButton')
+  let jsonData = JSON.parse(data)
+  for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
+    playSoundAtTime(i, jsonData.soundList[i].time);
+  }
 }
 // play button for testing
 document.querySelector("#playPauseButton").addEventListener("click", function (e) {
   console.log("play")
-  playSoundAtTime(0, 0);
-  playSoundAtTime(1, 1);
-  playSoundAtTime(2, 2);
-  playSoundAtTime(3, 3);
-  playSoundAtTime(0, 4);
-
+  testButton(soundList)
 });
 
 loadAudioElements(soundList);

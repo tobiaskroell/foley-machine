@@ -4,33 +4,62 @@ var bufferSourceNodes = [];
 var gainNodes = [];
 var panningNodes = [];
 var filterNodes = [];
+var convolverBuffers = [];
+var convolverNodes = [];
 
-var soundList =`
+var soundList = `
 {
   "soundList":
     [{ "name": "cat", "time": 1, "url": "https://cdn.freesound.org/previews/412/412016_3652520-lq.mp3" }
-      , { "name": "dog", "time": 3, "url": "https://cdn.freesound.org/previews/160/160092_2888453-lq.mp3" }
+      , { "name": "dog", "time": 0, "url": "https://cdn.freesound.org/previews/160/160092_2888453-lq.mp3" }
       , { "name": "chicken", "time": 5, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
       , { "name": "bird", "time": 7, "url": "https://cdn.freesound.org/previews/340/340861_6083171-lq.mp3" }]
 } 
 `
+let responseFiles = ["room", "church", "cave", "garage","room2"]
 
-// function that reads soundList and creates audio control elements and WebAudio Nodes
-function loadAudioElements(data) {
+//function to load inputresponse files
+function loadImpulseResponse(responseFiles) {
+  return new Promise((resolve, reject) => {
+    loadReady = false;
+    for (let i = 0; i < responseFiles.length; i++) {
+      console.log(responseFiles[i]);
+      fetch("/impulseResponses/" + responseFiles[i] + ".wav")
+        .then(response => response.arrayBuffer())
+        .then(undecodedAudio => context.decodeAudioData(undecodedAudio))
+        .then(convolverBuffer => {
+          convolverBuffers[i] = convolverBuffer;
+          loadReady = true;
+        })
+        .catch(err => console.log(err));
+    };
+    setTimeout(() => {
+      resolve();
+    }, 500);
+
+  })
+}
+
+// function that gets soundList and creates audio control elements and WebAudio Nodes
+async function loadAudioElements(data) {
+  await loadImpulseResponse(responseFiles);
   let jsonData = JSON.parse(data)
   for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
-
     loadWebSound(jsonData.soundList[i].url, i);
-      gainNodes[i] = context.createGain();
-      gainNodes[i].gain.value = 0.5;
-      panningNodes[i] = context.createStereoPanner();
-      panningNodes[i].pan.value = 0;
-      filterNodes[i] = context.createBiquadFilter();
-      filterNodes[i].type = "notch";
-      panningNodes[i].connect(gainNodes[i]);
-      gainNodes[i].connect(context.destination);
+    gainNodes[i] = context.createGain();
+    gainNodes[i].gain.value = 0.5;
+    panningNodes[i] = context.createStereoPanner();
+    panningNodes[i].pan.value = 0;
+    //filterNodes[i] = context.createBiquadFilter();
+    //filterNodes[i].type = "notch";
+    convolverNodes[i] = context.createConvolver();
+    convolverNodes[i].buffer = convolverBuffers[0];
+    convolverNodes[i].normalize = true;
+    convolverNodes[i].connect(panningNodes[i]);
+    panningNodes[i].connect(gainNodes[i]);
+    gainNodes[i].connect(context.destination);
   }
-  
+
   createAudioDiv(jsonData);
 }
 
@@ -55,7 +84,7 @@ function playSoundAtTime(i, time) {
   bufferSourceNodes[i] = context.createBufferSource();
   bufferSourceNodes[i].playbackRate.value = document.querySelector("#pitchOutput" + i).innerHTML
   bufferSourceNodes[i].buffer = audioBuffers[i];
-  bufferSourceNodes[i].connect(panningNodes[i]);
+  bufferSourceNodes[i].connect(convolverNodes[i]);
   bufferSourceNodes[i].start(context.currentTime + time);
 }
 
@@ -78,6 +107,9 @@ function createAudioDiv(jsonData) {
     document.querySelector("#pitchSlider" + i).addEventListener("input", function (e) {
       changeParameter(e, i)
     });
+    document.querySelector("#selectList" + i).addEventListener("change", function (e) {
+      changeParameter(e, i)
+    });
   }
 }
 // event handler for all sliders
@@ -89,14 +121,16 @@ function changeParameter(e, i) {
 
       break;
     case "panningSlider" + i:
-      document.querySelector("#panningOutput"+i).innerHTML = (e.target.value/100) + " ";
-      panningNodes[i].pan.value = e.target.value/100;
+      document.querySelector("#panningOutput" + i).innerHTML = (e.target.value / 100) + " ";
+      panningNodes[i].pan.value = e.target.value / 100;
       break;
     case "pitchSlider" + i:
-      console.log("hello")
-      document.querySelector("#pitchOutput" + i).innerHTML = (e.target.value/100);
-      bufferSourceNodes[i].playbackRate.value = e.target.value/100;
+      document.querySelector("#pitchOutput" + i).innerHTML = (e.target.value / 100);
+      bufferSourceNodes[i].playbackRate.value = e.target.value / 100;
       console.log(bufferSourceNodes[i].playbackRate.value)
+      break;
+    case "selectList" + i:
+      convolverNodes[i].buffer = convolverBuffers[e.target.selectedIndex];
       break;
   }
 }
@@ -120,10 +154,23 @@ function returnAudioElement(name, channel) {
   <label for="pitch">Pitch</label>
   <input class="slider" type="range" id="pitchSlider${channel}" name="pitch" min="0" max="200" value="100">
   <p id="pitchOutput${channel}"> 1 </p>
-</div>
+  </div>
+  <div>
+  <label for="pitch">Reverbe</label>
+  <select id="selectList${channel}">
+    <option value="room">Room</option>
+    <option value="church">Church</option>
+    <option value="cave">Cave</option>
+    <option value="garage">Garage</option>
+    <option value="room2">Room2</option>
+</select>
+  </div>
 
   `
 }
+
+
+
 function testButton(data) {
   console.log('testButton')
   let jsonData = JSON.parse(data)
@@ -137,5 +184,6 @@ document.querySelector("#playPauseButton").addEventListener("click", function (e
   testButton(soundList)
 });
 
-loadAudioElements(soundList);
+loadAudioElements(soundList)
+
 

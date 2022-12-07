@@ -276,3 +276,6 @@ dist
 
 ### Ignore Uploads ###
 video/
+.gitsecret/keys/random_seed
+!*.secret
+node_server/secret.js

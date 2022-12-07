@@ -1,5 +1,25 @@
 # Automatic Foley Machine
-    
+
+## Table of contents
+
+- [Installation](https://github.com/KevinKroell/avprg-project#installation)  
+  - [Node server](https://github.com/KevinKroell/avprg-project#node-server)
+    - [Installing Node.js](https://github.com/KevinKroell/avprg-project#installing-nodejs)
+    - [*Optional:* Installing NVM](https://github.com/KevinKroell/avprg-project#optional-installing-nvm-node-version-manager)
+    - [Using NVM](https://github.com/KevinKroell/avprg-project#using-nvm)
+    - [Installing dependencies](https://github.com/KevinKroell/avprg-project#installing-dependencies)
+  - [Python server](https://github.com/KevinKroell/avprg-project#python-server)
+  - [Decrypt API-Token](https://github.com/KevinKroell/avprg-project#decrypt-api-token) 
+  - [Setup git-secret](https://github.com/KevinKroell/avprg-project#setup-git-secret)
+  - [(Re)-Encrypt Files](https://github.com/KevinKroell/avprg-project#re-encrypt-files)
+- [Run locally](https://github.com/KevinKroell/avprg-project#run-locally)
+  - [Start Node server](https://github.com/KevinKroell/avprg-project#start-node-server)
+  - [Start Python server](https://github.com/KevinKroell/avprg-project#start-python-server)
+- [API Reference](https://github.com/KevinKroell/avprg-project#api-reference)
+  - [Send video to Python server](https://github.com/KevinKroell/avprg-project#send-video-to-python-server)
+- [Authors](https://github.com/KevinKroell/avprg-project#authors)
+
+
 ## Installation
 
 Clone the project
@@ -9,7 +29,7 @@ Clone the project
 ```
 
 ### Node server
-#### **Installing Node.js**
+#### **Node.js**
 The web server is running on **[Node.js](https://nodejs.org/) version 18.12.1 LTS** (requires at least v18.0.0), using its experimental fetch API.  
 
 #### *Optional:* Installing NVM (Node Version Manager)
@@ -66,7 +86,7 @@ Check selected Node version with `nvm current`.
 > Please note that any global npm modules you may have installed are not shared between the various versions of node.js you have installed. Additionally, some npm modules may not be supported in the version of node you're using, so be aware of your environment as you work.  
 
 (e.g. Nodemon: supported, but needs to be installed again for active version)
-#### **Installing dependencies**
+#### Installing dependencies
 Following dependencies are currently existing in this project:
 - Express
 - Express Fileupload
@@ -99,7 +119,10 @@ ___
 const freesoundToken = 'your-api-token-from-freesound';
 module.exports = { freesoundToken };
 ```
-___
+___   
+
+
+#### Setup git-secret
 In order to decrypt the needed files and use the implemented token you need to install *git-secret*, which requires some additional steps:  
 1. Install [git](https://git-scm.com/)
 2. Install [gpg](https://www.gnupg.org/) (Linux/Mac)
@@ -120,7 +143,7 @@ In order to decrypt the needed files and use the implemented token you need to i
 7. Wait for the protected files to be re-encrypted by a person who already has access, since you can't read these files yet
 8. If your access has granted, you now can decrypt the protected files with `git secret reveal`  
 
-**(Re)-Encrypt Files**  
+#### **(Re)-Encrypt Files**  
 In order to re-encrypt files, for example when needing to add a user, you shoudl run the following commands:
 ```sh
 git secret reveal; git secret hide -d
@@ -153,7 +176,7 @@ uvicorn main:app --reload
 
 ## API Reference
 
-#### Send video to python server
+#### Send video to Python server
 
 ```http
   POST /video

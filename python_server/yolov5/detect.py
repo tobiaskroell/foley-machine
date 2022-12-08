@@ -220,23 +220,23 @@ def run(
             detections_in_frame = [x for x in detections_in_frame if x]  # remove empty strings
 
             # Append frame number to dict
-            detections_dict['detections'].append({
-                str(detected_frame * vid_stride): []
-            })
-
-            for obj in detections_in_frame:
-                # Split numbers from objects
-                object_str = re.findall('[^0-9]', obj)
-                object_str = ''.join(object_str).strip()
-
-                # Add object and count 
-                detections_dict['detections'][detection_count][str(detected_frame * vid_stride)].append({
-                    "object": object_str,
-                    "count": re.findall('[0-9]', obj)[0]
+            if len(detections_in_frame) > 0:
+                detections_dict['detections'].append({
+                    str(detected_frame * vid_stride): []
                 })
-            # pdb.set_trace()
 
-            detection_count += 1
+                for obj in detections_in_frame:
+                    # Split numbers from objects
+                    object_str = re.findall('[^0-9]', obj)
+                    object_str = ''.join(object_str).strip()
+
+                    # Add object and count 
+                    detections_dict['detections'][detection_count][str(detected_frame * vid_stride)].append({
+                        "object": object_str,
+                        "count": re.findall('[0-9]', obj)[0]
+                    })
+
+                detection_count += 1
             #################################
 
             # Stream results

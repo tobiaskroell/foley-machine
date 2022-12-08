@@ -26,12 +26,12 @@ Usage - formats:
                                  yolov5s_paddle_model       # PaddlePaddle
 """
 
-from utils.torch_utils import select_device, smart_inference_mode
-from utils.plots import Annotator, colors, save_one_box
-from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
+from yolov5.utils.torch_utils import select_device, smart_inference_mode
+from yolov5.utils.plots import Annotator, colors, save_one_box
+from yolov5.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
                            increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
-from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from models.common import DetectMultiBackend
+from yolov5.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
+from yolov5.models.common import DetectMultiBackend
 import argparse
 import os
 import platform
@@ -40,8 +40,6 @@ from pathlib import Path
 import torch
 import re
 import pdb
-import ffmpeg
-from pprint import pprint  # for printing Python dictionaries in a human-readable way
 
 
 FILE = Path(__file__).resolve()
@@ -80,9 +78,8 @@ def run(
         half=False,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
         vid_stride=1,  # video frame-rate stride
-        frame_count=0,
-        video_name='',
         total_frames=0,
+        video_name='',
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -338,14 +335,14 @@ def main(opt):
     run(**vars(opt))
 
 
-def detect_objects(video_name, frame_count):
+def detect_objects(video_name, total_frames):
     """
     @author: Kevin\n
     Modified main function to run the model with static parameters.
     """
     check_requirements(exclude=('tensorboard', 'thop'))
     detections_dict = run(
-        source=f'../node_server/public/video/{video_name}',
+        source=f'../../node_server/public/video/{video_name}',
         data='data/coco.yaml',
         weights='yolov5x.pt',
         conf_thres=0.25,
@@ -353,7 +350,7 @@ def detect_objects(video_name, frame_count):
         vid_stride=150,
         nosave=True,
         save_txt=True,
-        frame_count=frame_count,
+        total_frames=total_frames,
         video_name=video_name,
     )
 
@@ -361,4 +358,5 @@ def detect_objects(video_name, frame_count):
 
 
 if __name__ == "__main__":
-    detect_objects('animals.mp4', 6572)
+    # detect_objects('animals.mp4', 6572)
+    pass

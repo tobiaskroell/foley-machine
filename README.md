@@ -110,14 +110,18 @@ To install them, follow these two steps:
 tbd
 ```
 
-### Decrypt API-Token
-The API-Token used to communicate with the [freesound.org API](https://freesound.org/docs/api/) has been encrypted with [git-secret](https://git-secret.io/), to prevent it from being available to anybody having access to this repository.  
+### Decrypt API-Tokens
+The API-Tokens used to communicate with the [freesound.org API](https://freesound.org/docs/api/) and the [YouTube Data-API](https://developers.google.com/youtube/v3) have been encrypted with [git-secret](https://git-secret.io/), to prevent it from being available to anybody having access to this repository.  
 ___
 ⚠️If you don't want to use the integrated API-Token, you can skip this step and just insert your own `secret.js` located here: `./node_server/secret.js`  
 ⚠️Contents of that file should be:
 ```js
-const freesoundToken = 'your-api-token-from-freesound';
-module.exports = { freesoundToken };
+const freesoundToken = 'your-api-token-freesound';
+const youtubeToken = 'your-api-token-youtube';
+module.exports = {
+    freesound: freesoundToken,
+    youtube: youtubeToken
+};
 ```
 ___   
 

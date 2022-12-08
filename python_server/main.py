@@ -3,7 +3,6 @@ import pdb
 import os
 from yolov5 import detect
 
-print(os.getcwd())
 app = FastAPI()
 
 
@@ -12,7 +11,11 @@ async def video(req_body: Request):
     data = await req_body.json()
     filename = data['filename']
     total_frames = data['total_frames']
-    os.chdir(os.getcwd() + "/yolov5/")
+
+    # Change directory to yolov5
+    if not os.getcwd().endswith("yolov5"):
+        os.chdir(os.getcwd() + "/yolov5/")
+
     detections_dict = detect.detect_objects(filename, 100)
 
     return {

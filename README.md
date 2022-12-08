@@ -190,7 +190,7 @@ uvicorn main:app --reload
 
 ```
   {
-      "video_name" : funnycats.mp4
+      "filename" : "funnycats.mp4"
   }
 ```
 ## Authors

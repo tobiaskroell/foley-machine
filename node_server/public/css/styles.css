@@ -13,6 +13,7 @@ body {
     padding: 25px;
     margin: 0;
     /* overflow: hidden; */
+    overflow-x: hidden;
     background-color: #343a40;
     
     box-sizing: border-box;
@@ -145,7 +146,7 @@ h1 {
     border: 2px dashed rgba(255,255,255,0.5);
     border-radius: 25px;
     background-color: transparent;
-    transition: border 0.25s linear, background-color 0.25s linear;;
+    transition: background-color 0.25s linear;;
 }
 
 .dropzone.advanced_features .dropzone_dragndrop {
@@ -155,7 +156,7 @@ h1 {
 .dropzone.is_dragover {
     background-color: rgba(255,255,255,0.5);
     border: 2px solid rgba(120, 120, 120, 0.8);
-    transition: border 0.25s linear, background-color 0.25s linear;
+    transition: background-color 0.25s linear;
 }
 
 /* Classes for status divs */
@@ -164,6 +165,12 @@ h1 {
 .dropzone_success,
 .dropzone_error {
     display: none;
+}
+
+.dropzone .dropzone_input {
+  width: 60%;
+  display: flex;
+  justify-content: center;
 }
 
 .dropzone.is_uploading .dropzone_input {
@@ -229,6 +236,66 @@ h1 {
 .inputfile:focus + label {
 	outline: 1px dotted #000;
 	outline: -webkit-focus-ring-color auto 5px;
+}
+
+.inputYtArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+  padding: 0;
+  margin: 0;
+}
+
+.inputYouTube {
+  width: 100%;
+  height: 1.5rem;
+  border: 1px solid white;
+  border-radius: 10px;
+  background-color: transparent;
+  color: white;
+  padding: 0.25rem 1rem 0.25rem 1rem;
+  font-family: 'Space Mono';
+  visibility: visible;
+  transition: width 0.5s ease;
+}
+
+.labelYouTube{
+  width: 60%;
+  font-size: 0.7rem;
+  font-weight: 300;
+  margin: 1rem 0 0 2rem;
+}
+
+.buttonYouTube {
+  height: 38px;
+  border: 1px solid white;
+  border-radius: 10px;
+  background-color: transparent;
+  color: white;
+  padding: 0.25rem 1rem 0.25rem 1rem;
+  font-family: 'Mulish';
+  margin: 0 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.buttonYouTube:hover {
+  border-color: #01BAEF;
+  color: #01BAEF;
+}
+
+input[type=text]:focus {
+  outline: none;
+}
+
+.is_processing:not(.hidden) ~ .labelYouTube,
+.is_processing:not(.hidden) ~ .inputYtArea {
+  display: none;
+}
+
+.invisible {
+  visibility: hidden;
 }
 
 .output {
@@ -298,12 +365,12 @@ input[type=range].slider {
     cursor: pointer;
   }
   input[type=range].slider::-webkit-slider-thumb {
-    margin-top: -0.7px;
-    width: 18px;
-    height: 27px;
-    background: #f03f35;
-    border: 0px solid rgba(125, 60, 48, 0);
-    border: 0;
+    margin-top: 2px;
+    width: 13px;
+    height: 22px;
+    background: #7FB069;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: inset 1px 1px 6px rgba(0,0,0,.6);
     cursor: pointer;
     -webkit-appearance: none;
   }
@@ -311,52 +378,58 @@ input[type=range].slider {
     background: #5e6565;
   }
   input[type=range].slider::-moz-range-track {
-    background: #484d4d;
-    border: 0;
+    background: transparent;
+    border: 1px solid white;
+    border-radius: 15px;
+    box-shadow: inset 2px 5px 12px rgba(0,0,0,0.8);
     width: 100%;
-    height: 25.6px;
+    height: 22px;
     cursor: pointer;
   }
   input[type=range].slider::-moz-range-thumb {
-    width: 18px;
-    height: 27px;
-    background: #f03f35;
-    border: 0px solid rgba(125, 60, 48, 0);
-    border: 0;
+    margin-top: -0.7px;
+    width: 13px;
+    height: 22px;
+    background: #7FB069;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: inset 1px 1px 6px rgba(0,0,0,.6);
     cursor: pointer;
+    -webkit-appearance: none;
   }
   input[type=range].slider::-ms-track {
     background: transparent;
-    border-color: transparent;
-    border-width: 0.7px 0;
-    color: transparent;
+    border: 1px solid white;
+    border-radius: 15px;
+    box-shadow: inset 2px 5px 12px rgba(0,0,0,0.8);
     width: 100%;
-    height: 25.6px;
+    height: 22px;
     cursor: pointer;
   }
   input[type=range].slider::-ms-fill-lower {
-    background: #323535;
+    background: transparent;
     border: 0;
   }
   input[type=range].slider::-ms-fill-upper {
-    background: #484d4d;
+    background: transparent;
     border: 0;
   }
   input[type=range].slider::-ms-thumb {
-    width: 18px;
-    height: 27px;
-    background: #f03f35;
-    border: 0px solid rgba(125, 60, 48, 0);
-    border: 0;
+    margin-top: -0.7px;
+    width: 13px;
+    height: 22px;
+    background: #7FB069;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: inset 1px 1px 6px rgba(0,0,0,.6);
     cursor: pointer;
+    -webkit-appearance: none;
     margin-top: 0px;
     /*Needed to keep the Edge thumb centred*/
   }
   input[type=range].slider:focus::-ms-fill-lower {
-    background: #484d4d;
+    background: transparent;
   }
   input[type=range].slider:focus::-ms-fill-upper {
-    background: #5e6565;
+    background: transparent;
   }
   @supports (-ms-ime-align:auto) {
     input[type=range].slider {
@@ -391,7 +464,7 @@ ul {
   list-style: none;
   perspective: 900;
   padding: 0;
-  margin: 0;
+  margin-top: 6rem;
   width: 80%;
 }
 
@@ -480,7 +553,7 @@ ul li input[type=checkbox]:checked ~ i:after {
   border-radius: 25px;
   border: 1px solid rgba(255,255,255,0.5);
   margin: 1rem;
-  padding: 2rem;
+  padding: 0 1.5rem;
 }
 
 .audioElementsFrame .channel h3.channelTitle {
@@ -515,7 +588,98 @@ ul li input[type=checkbox]:checked ~ i:after {
   text-align: right;
 }
 
+input.powerswitch {
+  position: relative;
+  appearance: none;
+  outline: none;
+  width: 25px;
+  height: 15px;
+  top: 10px;
+  left: -18px;
+  background-color: #ffffff;
+  border: 1px solid #F5F0F6;
+  border-radius: 50px;
+  box-shadow: inset -20px 0 0 0 #F5F0F6;
+  transition-duration: 200ms;
+}
 
+  input.powerswitch:after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    /* left: 1px; */
+    width: 13px;
+    height: 13px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow: 2px 4px 6px rgba(0,0,0,0.2);
+  }
+
+  input.powerswitch:checked {
+    border-color: #F5F0F6;
+    box-shadow: inset 20px 0 0 0 #7FB069;
+  }
+
+  input.powerswitch:checked:after {
+    left: 10px;
+    box-shadow: -2px 4px 3px rgba(0,0,0,0.05);
+  }
+
+/* Video-Elements */
+.output_video {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.mp4-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  max-height: 40vh;
+}
+
+.timecode {
+  text-align: center;
+}
+
+.youtube-video { 
+  position: relative; 
+  padding-bottom: 56.25%; 
+  padding-top: 30px; 
+  height: 0; 
+  overflow: hidden; 
+}
+
+.youtube-video iframe, 
+.youtube-video object, 
+.youtube-video embed { 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+}
+
+.reloadButton {
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.3);
+  padding: 0.25rem 1rem 0.25rem 1rem;
+  font-family: 'Mulish';
+  margin: 0 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  align-self: center;
+  transition: all 0.5s ease;
+}
+
+.reloadButton:hover {
+  border: 1px solid white;
+  color: white;
+}
 
 /* Responsive Sizes */
 

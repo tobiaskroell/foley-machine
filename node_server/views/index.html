@@ -3,6 +3,7 @@
     <head>
         <title></title>
         <script src="/js/jquery-3.6.1.min.js"></script>
+        <script src="https://www.youtube.com/player_api"></script>
         <script src="/js/scripts.js"></script>
         <link rel="stylesheet" href="./css/styles.css">
     </head>
@@ -26,19 +27,30 @@
                     <p><strong>Video is processing...</strong></p>
                     <div id="is_loading"></div>
                 </div>
+                <label for="youtube" class="labelYouTube">Or paste a YouTube-Link:</label>
+                <div class="inputYtArea">
+                    <input type="text" class="inputYouTube" id="youtube" name="youtube" placeholder="https://youtube.com/your-video" pattern="^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$" onchange="checkLinkInput(this.value)">
+                    <button class="buttonYouTube hidden" type="submit">Go!</button>
+                </div>
             </form>
             <!-- Output Area -->
-            <div class="output">
-                <div class="output_image hidden"></div>
-                <div class="output_text">
-                    <p><!-- This could be output text if needed --></p>
+            <div class="output hidden">
+                <!-- Video output area -->
+                <div class="output_video"> 
+                    <div class="mp4-container">
+                        <video class="mp4-video hidden" controls muted autoplay>
+                            <source src="" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="youtube-video hidden">
+                        <div id="youtube-video"></div> <!-- Will be replaced by YouTube-Video with JS -->
+                    </div>
+                    <p class="timecode"></p>
+                    <input class="reloadButton" type="button" value="Upload new!" onclick="reloadAndDelete()">
                 </div>
-                <!-- Hidden audio output area -->
-                <div class="output_sound hidden">
+                <!-- Audio output area -->
+                <div class="output_sound">
                     <h2>Audio Mixer</h2>
-                    <audio controls>
-                        <source src="" type="audio/mpeg">
-                    </audio>
                     <button id="playPauseButton">Play</button>
                     <div id="audioElementsFrame" class="audioElementsFrame">
                         <!-- Area for audio elements -->                    

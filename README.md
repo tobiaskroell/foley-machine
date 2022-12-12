@@ -1,6 +1,25 @@
-
 # Automatic Foley Machine
-    
+
+## Table of contents
+
+- [Installation](https://github.com/KevinKroell/avprg-project#installation)  
+  - [Node server](https://github.com/KevinKroell/avprg-project#node-server)
+    - [Installing Node.js](https://github.com/KevinKroell/avprg-project#installing-nodejs)
+    - [*Optional:* Installing NVM](https://github.com/KevinKroell/avprg-project#optional-installing-nvm-node-version-manager)
+    - [Using NVM](https://github.com/KevinKroell/avprg-project#using-nvm)
+    - [Installing dependencies](https://github.com/KevinKroell/avprg-project#installing-dependencies)
+  - [Python server](https://github.com/KevinKroell/avprg-project#python-server)
+  - [Decrypt API-Token](https://github.com/KevinKroell/avprg-project#decrypt-api-token) 
+    - [Setup git-secret](https://github.com/KevinKroell/avprg-project#setup-git-secret)
+    - [(Re)-Encrypt Files](https://github.com/KevinKroell/avprg-project#re-encrypt-files)
+- [Run locally](https://github.com/KevinKroell/avprg-project#run-locally)
+  - [Start Node server](https://github.com/KevinKroell/avprg-project#start-node-server)
+  - [Start Python server](https://github.com/KevinKroell/avprg-project#start-python-server)
+- [API Reference](https://github.com/KevinKroell/avprg-project#api-reference)
+  - [Send video to Python server](https://github.com/KevinKroell/avprg-project#send-video-to-python-server)
+- [Authors](https://github.com/KevinKroell/avprg-project#authors)
+
+
 ## Installation
 
 Clone the project
@@ -10,7 +29,7 @@ Clone the project
 ```
 
 ### Node server
-#### **Installing Node.js**
+#### **Node.js**
 The web server is running on **[Node.js](https://nodejs.org/) version 18.12.1 LTS** (requires at least v18.0.0), using its experimental fetch API.  
 
 #### *Optional:* Installing NVM (Node Version Manager)
@@ -67,7 +86,7 @@ Check selected Node version with `nvm current`.
 > Please note that any global npm modules you may have installed are not shared between the various versions of node.js you have installed. Additionally, some npm modules may not be supported in the version of node you're using, so be aware of your environment as you work.  
 
 (e.g. Nodemon: supported, but needs to be installed again for active version)
-#### **Installing dependencies**
+#### Installing dependencies
 Following dependencies are currently existing in this project:
 - Express
 - Express Fileupload
@@ -88,8 +107,56 @@ To install them, follow these two steps:
 
 ### Python server
 ```
-tbd
+1. cd to the directory where requirements.txt is located.
+2. activate your virtualenv.
+3. run: pip install -r requirements.txt in your shell.
 ```
+
+### Decrypt API-Token
+The API-Token used to communicate with the [freesound.org API](https://freesound.org/docs/api/) has been encrypted with [git-secret](https://git-secret.io/), to prevent it from being available to anybody having access to this repository.  
+___
+⚠️If you don't want to use the integrated API-Token, you can skip this step and just insert your own `secret.js` located here: `./node_server/secret.js`  
+⚠️Contents of that file should be:
+```js
+const freesoundToken = 'your-api-token-from-freesound';
+module.exports = { freesoundToken };
+```
+___   
+
+
+#### Setup git-secret
+In order to decrypt the needed files and use the implemented token you need to install *git-secret*, which requires some additional steps:  
+1. Install [git](https://git-scm.com/)
+2. Install [gpg](https://www.gnupg.org/) (Linux/Mac)
+- Follow [this guide](https://www.devdungeon.com/content/gpg-tutorial#install_gpg) for instructions depending on your OS
+3. Install [git-secret (Installation Guide)](https://git-secret.io/installation)
+    - Windows Machines require additional unix tools, easiest installed using [Windows Subsystem for Linux ](https://learn.microsoft.com/en-us/windows/wsl/install) on Win10/Win11 (e.g. `wsl --install -d Ubuntu`)  
+    - After installing WSL, start the Linux Subsystem and install additional packages by running the command `sudo apt-get install gnupg make man git gawk file`  
+    - In your subsystem proceed with the [manual installation](https://git-secret.io/installation#manual-installation):  
+      `git clone https://github.com/sobolevn/git-secret.git git-secret`  
+      `cd git-secret && make build`  
+      `sudo PREFIX="/usr/local" make install`
+4. Generate a RSA key-pair: `gpg --gen-key`
+5. Export your public key with `gpg --armor --export you@email.com > public_key.txt`
+6. Send public key to someone who already has access (On WSL you can reach your Windows Files at `/mnt/`. For example change directory to your C: Drive `cd /mnt/c`)
+    - This person needs to import that key with `gpg --import public_key.txt`
+    - Add the new person to the secrets repo: `git secret tell you@email.com` (email address associated with their public key)
+    - Remove other user's public key from personal keyring with `gpg --delete keys you@email.com`
+7. Wait for the protected files to be re-encrypted by a person who already has access, since you can't read these files yet
+8. If your access has granted, you now can decrypt the protected files with `git secret reveal`  
+
+#### **(Re)-Encrypt Files**  
+In order to re-encrypt files, for example when needing to add a user, you shoudl run the following commands:
+```sh
+git secret reveal; git secret hide -d
+# the -d option deletes the unencrypted file after re-encrypting it
+```
+
+If you want to add new files for encryption, you can add these by running `git secret add <filenames...>`.
+This will also add entries to the `.gitignore` preventing unencrypted files being pushed to the repo.  
+Then use `git secret hide` to encrypt these added files.  
+**Now it is safe to commit your changes.**
+
 ## Run Locally
 
 ### Start Node server
@@ -111,7 +178,7 @@ uvicorn main:app --reload
 
 ## API Reference
 
-#### Send video to python server
+#### Send video to Python server
 
 ```http
   POST /video
@@ -123,11 +190,11 @@ uvicorn main:app --reload
 
 ```
   {
-      "video_name" : funnycats.mp4
+      "filename" : "funnycats.mp4"
   }
 ```
 ## Authors
 
-- [@KevinKroell](https://github.com/KevinKroell)
-- [@SirMightyMo](https://github.com/SirMightyMo)
-- [@LeanderWernst](https://github.com/LeanderWernst)
+[@KevinKroell](https://github.com/KevinKroell)  
+[@SirMightyMo](https://github.com/SirMightyMo)  
+[@LeanderWernst](https://github.com/LeanderWernst)

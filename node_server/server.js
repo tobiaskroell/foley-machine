@@ -17,6 +17,8 @@ const fs = require("fs");
 
 const { animalList } = require('./animals.js');
 
+const { freesoundToken } = require('./secret.js');
+
 /***********
  ** Hosts **
  ***********/

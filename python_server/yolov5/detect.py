@@ -26,12 +26,12 @@ Usage - formats:
                                  yolov5s_paddle_model       # PaddlePaddle
 """
 
-from utils.torch_utils import select_device, smart_inference_mode
-from utils.plots import Annotator, colors, save_one_box
-from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
+from yolov5.utils.torch_utils import select_device, smart_inference_mode
+from yolov5.utils.plots import Annotator, colors, save_one_box
+from yolov5.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
                            increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
-from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from models.common import DetectMultiBackend
+from yolov5.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
+from yolov5.models.common import DetectMultiBackend
 import argparse
 import os
 import platform
@@ -40,8 +40,6 @@ from pathlib import Path
 import torch
 import re
 import pdb
-import ffmpeg
-from pprint import pprint  # for printing Python dictionaries in a human-readable way
 
 
 FILE = Path(__file__).resolve()
@@ -60,7 +58,7 @@ def run(
         conf_thres=0.25,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
-        device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+        device='cpu',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         view_img=False,  # show results
         save_txt=False,  # save results to *.txt
         save_conf=False,  # save confidences in --save-txt labels
@@ -80,9 +78,8 @@ def run(
         half=False,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
         vid_stride=1,  # video frame-rate stride
-        frame_count=0,
-        video_name='',
         total_frames=0,
+        video_name='',
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -90,35 +87,38 @@ def run(
     is_url = source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
     webcam = source.isnumeric() or source.endswith('.txt') or (is_url and not is_file)
     screenshot = source.lower().startswith('screen')
-    res_list = []
+
     detections_dict_exmpl = {
         "file": {video_name},
         "total_frames": {total_frames},
-        "objects": [
+        "detections":
+        [
             {
-                "01": [
+                "150": [
                     {
-                        "object_": "cat",
+                        "object": "cat",
                         "count": 2,
                     },
 
                     {
-                        "object_": "dog",
+                        "object": "dog",
                         "count": 1,
                     },
-                ],
+                ]
+            },
 
-                "02": [
+            {
+                "300": [
                     {
-                        "object_": "horse",
-                        "count": 3,
+                        "object": "horse",
+                        "count": 2,
                     },
-                ],
+                ]
             }
         ]
     }
-    pdb.set_trace()
-    print(detections_dict_exmpl['detections'][0]['01'][0]['object_'])
+    detections_dict = {}
+    detections_dict['detections'] = []
 
     if is_url and is_file:
         source = check_file(source)  # download
@@ -148,6 +148,8 @@ def run(
     # Run inference
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
+
+    detection_count = 0
     for path, im, im0s, vid_cap, s in dataset:
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
@@ -168,6 +170,7 @@ def run(
         # Second-stage classifier (optional)
         # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
         # Process predictions
+
         for i, det in enumerate(pred):  # per image
             seen += 1
             if webcam:  # batch_size >= 1
@@ -190,31 +193,7 @@ def run(
                 # Print results
                 for c in det[:, 5].unique():
                     n = (det[:, 5] == c).sum()  # detections per class
-                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add detection class to string (cat, dog, ...)
-
-                # # Add detections to dict
-                # for c in det[:, 5].unique():
-                #     detected_frame = int(re.findall('\((.+?)\/', s)[0])
-                #     detections_dict[f"{detected_frame * vid_stride}"] = re.findall('(?<=384x640).*$', s)[0]
-                #     # pdb.set_trace()
-
-                # Add detections to dict
-                detected_frame = int(re.findall('\((.+?)\/', s)[0])  # get frame number
-                detections_in_frame = re.findall('(?<=384x640).*$', s)[0]  # get detection string
-                detections_in_frame = detections_in_frame.split(',')  # split into list
-                detections_in_frame = list(map(lambda x: x.strip(), detections_in_frame))  # remove whitespace
-                detections_in_frame = [x for x in detections_in_frame if x]  # remove empty strings
-                
-                #TODO: add to dict
-                # detections_dict[f"{detected_frame * vid_stride}"] = {x for x in detections_in_frame}  # add to dict
-                pdb.set_trace()
-                
-                
-                
-                # detections_dict[f"{detected_frame * vid_stride}"] = {}
-                # for c in det[:, 5].unique():
-
-                #     # pdb.set_trace()
+                    s += f"{n} {names[int(c)]}, "  # add detection class to string (cat, dog, ...)
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
@@ -230,6 +209,35 @@ def run(
                         annotator.box_label(xyxy, label, color=colors(c, True))
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
+
+            #################################
+            # @author: Kevin
+            # Add detections to dict
+            detected_frame = int(re.findall('\((.+?)\/', s)[0])  # get frame number
+            detections_in_frame = re.findall('(?<=384x640).*$', s)[0]  # get detection string
+            detections_in_frame = detections_in_frame.split(',')  # split into list
+            detections_in_frame = list(map(lambda x: x.strip(), detections_in_frame))  # remove whitespace
+            detections_in_frame = [x for x in detections_in_frame if x]  # remove empty strings
+
+            # Append frame number to dict
+            if len(detections_in_frame) > 0:
+                detections_dict['detections'].append({
+                    str(detected_frame * vid_stride): []
+                })
+
+                for obj in detections_in_frame:
+                    # Split numbers from objects
+                    object_str = re.findall('[^0-9]', obj)
+                    object_str = ''.join(object_str).strip()
+
+                    # Add object and count 
+                    detections_dict['detections'][detection_count][str(detected_frame * vid_stride)].append({
+                        "object": object_str,
+                        "count": re.findall('[0-9]', obj)[0]
+                    })
+
+                detection_count += 1
+            #################################
 
             # Stream results
             im0 = annotator.result()
@@ -260,13 +268,6 @@ def run(
                         vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
                     vid_writer[i].write(im0)
 
-        # Print time (inference-only)
-
-        inf_res = '' + f"{s}{'' if len(det) else '(no detections), '}"
-        res_list.append(inf_res)
-
-        # LOGGER.info(inf_res)
-
     # Print results
     t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
     LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
@@ -275,11 +276,23 @@ def run(
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
-
-    # print('\n\n res_list: ', res_list)
-    for k, v in detections_dict.items():
-        print(f"{k}: {v}")
+    
+    print(detections_dict)
+    print_dict(detections_dict)
     return detections_dict
+
+
+def print_dict(dict_):
+    """
+    @author: Kevin\n
+    Prints the detections dictionary in a readable format.
+    """
+    for frame in dict_['detections']:
+        for key in frame.keys():
+            for val in frame.values():
+                print(f'Frame: {key}')
+                for i in range(len(val)):
+                    print('\t', val[i])
 
 
 def parse_opt():
@@ -322,26 +335,28 @@ def main(opt):
     run(**vars(opt))
 
 
-def main_modified(video_name, frame_count):
+def detect_objects(video_name, total_frames):
+    """
+    @author: Kevin\n
+    Modified main function to run the model with static parameters.
+    """
     check_requirements(exclude=('tensorboard', 'thop'))
-    run(
-        source=f'..\\node_server\\public\\video\\{video_name}',
-        data='data/coco128.yaml',
-        weights='yolov5s.pt',
+    detections_dict = run(
+        source=f'../../node_server/public/video/{video_name}',
+        data='data/coco.yaml',
+        weights='yolov5x.pt',
         conf_thres=0.25,
         device='0',
         vid_stride=150,
         nosave=True,
         save_txt=True,
-        frame_count=frame_count,
+        total_frames=total_frames,
         video_name=video_name,
     )
 
+    return detections_dict
+
 
 if __name__ == "__main__":
-    # opt = parse_opt()
-    # print('OPT::::::::::::::')
-    # print(opt)
-    # main(opt)
-
-    main_modified('animals.mp4', 6572)
+    # detect_objects('animals.mp4', 6572)
+    pass

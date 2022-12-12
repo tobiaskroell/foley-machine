@@ -18,7 +18,7 @@ var soundList = `
 `
 let responseFiles = ["room", "church", "cave", "garage","room2"]
 
-//function to load inputresponse files
+//function to load impulsresponse files
 function loadImpulseResponse(responseFiles) {
   return new Promise((resolve, reject) => {
     loadReady = false;
@@ -156,7 +156,7 @@ function returnAudioElement(name, channel) {
   <p id="pitchOutput${channel}"> 1 </p>
   </div>
   <div>
-  <label for="pitch">Reverbe</label>
+  <label for="pitch">Reverb</label>
   <select id="selectList${channel}">
     <option value="room">Room</option>
     <option value="church">Church</option>

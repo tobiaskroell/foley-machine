@@ -17,7 +17,7 @@ const fs = require("fs");
 
 const { animalList } = require('./animals.js');
 
-const { freesoundToken } = require('./secret.js');
+const secret = require('./secret.js');
 
 /***********
  ** Hosts **
@@ -46,7 +46,7 @@ app.get('/', function(req, res) {
 });
 
 // Upload video file
-app.post('/upload', /*async*/ (req, res) => {
+app.post('/upload', async (req, res) => {
   const link = req.body.link != undefined ? req.body.link : false;
   const file = req.files ? req.files.file : false;
   let filename, filepath, fps, duration, frameCount;
@@ -67,8 +67,9 @@ app.post('/upload', /*async*/ (req, res) => {
           }
           fps = parseFloat(info.streams[0].r_frame_rate);
           frameCount = parseInt(info.streams[0].nb_frames); // nb_frames not always accurate or available
+          duration = parseFloat(info.streams[0].duration);
+          console.log("Video Duration: " + duration);
           if (frameCount == 0) {
-            duration = parseFloat(info.format.duration);
             frameCount = Math.round(duration * fps);
           }
         });
@@ -76,52 +77,111 @@ app.post('/upload', /*async*/ (req, res) => {
     } else {
       filepath = link;
       frameCount = null;
+      // Talk to YouTube API to receive video duration
+      // Video duration needed to calculate fps & audio trigger
+      const youtubeId = extractYouTubeId(link);
+      await fetch(`https://www.googleapis.com/youtube/v3/videos?id=16Ci_2bN_zc&part=contentDetails&key=${secret.youtube}`).then((res) => {
+        const data = res.json().then((data) => {
+          duration = YTDurationToSeconds(data.items[0].contentDetails.duration);
+          console.log("YouTube Duration: " + duration);
+          // TODO: Call Function to handle Freesound API
+        });
+      });
     }
     
     // Create JSON object
     const data = {
-      "filepath": filepath,
-      "frameCount": frameCount
+      "filepath": filepath
     };
 
     // Make request to python server
     // TODO: Activate following line
     // const pythonPostResponse = await post(pyServer + pyPath, data);
-    /* {
-      "file": {video_name},
-      "total_frames": {total_frames},
-      "objects":
-        {
-          "01": [
-            {
-              "object_": "cat",
-              "count": 2,
-            },
-            {
-              "object_": "dog",
-              "count": 1,
-            },
-          ],
-          "02": [
-            {
-              "object_": "horse",
-              "count": 3,
-            },
-          ],
-        }
-    } */
+    const pythonPostResponse = { // TODO: Exchange with line above
+      "status": "SUCCESS",
+      "data": {
+        "file": filename,
+        "total_frames": 700,
+        "objects": [
+          {
+            "1" : [
+              {
+                "object": "goose",
+                "count": "1",
+              },
+            ],
+            "181" : [
+              {
+                "object": "goose",
+                "count": "2",
+              },
+              {
+                "object": "goose",
+                "count": "1",
+              }
+            ],
+            "361" : [
+              {
+                "object": "goose",
+                "count": "1",
+              },
+            ],
+            "541" : [
+              {
+                "object": "goose",
+                "count": "3",
+              },
+            ],
+          }
+        ]
+      }
+    };
+    const detections = pythonPostResponse.data.objects[0];
 
-    // TODO: API call freesound.org
-
-    // JSON with freesound results
-    /* {
-      "soundList":
-        [{ "name": "cat", "time": 1, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
-          , { "name": "dog", "time": 2, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
-          , { "name": "chicken", "time": 3, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
-          , { "name": "bird", "time": 3.5, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }]
-    }  */
-    res.send({filename: filename}); // ATTENTION: filename needs to be included in the response!
+    // API Calls
+    const promises = [];
+    const audioJson = {"soundList":[]};
+    for (let frame in detections) { // for every frame
+      for (let object of detections[frame]) { // for every animal
+        const query = object.object;
+        console.log("Frame: " + frame + " | Count: " + object.count + " | Query: " + query);
+        await fetch(`https://freesound.org/apiv2/search/text/?query=${query}&token=${secret.freesound}`).then((res) => {
+          promises.push(new Promise((resolve, reject) => {
+            res.json().then((json) => {
+              // TODO: Check if json response not empty
+              // Collect ids for query-matching sounds
+              for (let i = 0; i < object.count; i++) {
+                // Reset 'i' if there are no more results
+                if (json.results.length < object.count && i + 1 == json.results.length) { i = 0 }
+                audioJson.soundList.push({"id": json.results[i].id, "name": query, "time": frame/fps, "url": null});
+                // TODO: Calculate fps from python response on youtube videos
+              }
+              resolve("success");
+            });
+          }));
+        });
+      }
+    }
+    // Collect preview mp3 urls, when all promises have been resolved
+    Promise.all(promises).then(async (resolveValues) => {
+      console.log(audioJson);
+      promises.length = 0;
+      for (let sound of audioJson.soundList) {
+        await fetch(`https://freesound.org/apiv2/sounds/${sound.id}/?token=${secret.freesound}`).then((res) => {
+          promises.push(new Promise((resolve, reject) => {
+            res.json().then((json) => {
+              sound.url = json.previews["preview-lq-mp3"]; // Low quality mp3
+              resolve("success");
+            });
+          }));
+        });
+      }
+      Promise.all(promises).then((resolveValues) => {
+        audioJson.filename = filename; // ATTENTION: filename needs to be included in the response!
+        console.log(audioJson);
+        res.send(audioJson);
+      });
+    });
 });
 
 // Delete specific video file
@@ -179,4 +239,35 @@ async function post(url, data) {
     req.write(dataString)
     req.end()
   })
+}
+
+// Converts ISO8601 format to seconds
+// https://stackoverflow.com/a/30134889
+function YTDurationToSeconds(duration) {
+  var match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+
+  match = match.slice(1).map(function(x) {
+    if (x != null) {
+        return x.replace(/\D/, '');
+    }
+  });
+
+  var hours = (parseInt(match[0]) || 0);
+  var minutes = (parseInt(match[1]) || 0);
+  var seconds = (parseInt(match[2]) || 0);
+
+  return hours * 3600 + minutes * 60 + seconds;
+}
+
+/**
+* @author J W & Sobral
+* @url https://stackoverflow.com/a/27728417
+* @date visited: 2022-12-03
+* @description: Extracts the video ID from a YouTube link
+* @param {string} url - YouTube link
+*/
+function extractYouTubeId(url) {
+  const rx = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
+  const match = url.match(rx);
+  return match[1];
 }

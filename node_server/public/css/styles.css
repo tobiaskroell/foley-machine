@@ -140,6 +140,7 @@ h1 {
     align-items: center;
     width: 80%;
     height: 25vh;
+    min-height: 250px;
   }
   
   .dropzone.advanced_features {
@@ -464,7 +465,7 @@ ul {
   list-style: none;
   perspective: 900;
   padding: 0;
-  margin: 0;
+  margin-top: 4rem;
   width: 80%;
 }
 

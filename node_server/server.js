@@ -173,6 +173,7 @@ app.post('/upload', async (req, res) => {
       for (let frame in detections) {                 // for every frame
         for (let object of detections[frame]) {       // for every animal
           const query = object.object;
+          if (animalList.includes(query)) {
             const filter = "duration:%5B1%20TO%206%5D"  // URL encoded: 'duration:[1 TO 6]' (seconds)
             console.log("Frame: " + frame + " | Count: " + object.count + " | Query: " + query);
             await fetch(`https://freesound.org/apiv2/search/text/?query=${query}&filter=${filter}&token=${secret.freesound}`).then((res) => {
@@ -191,7 +192,7 @@ app.post('/upload', async (req, res) => {
               }));
             });
           }
-    }
+        }
       }
       // Collect preview mp3 urls, when all promises have been resolved
       Promise.all(promises).then(async (resolveValues) => {

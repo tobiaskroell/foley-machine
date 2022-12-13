@@ -66,8 +66,9 @@ app.post('/upload', async (req, res) => {
   const file = req.files ? req.files.file : false;
   let filename, filepath, fps, duration, frameCount;
 
-  if (file != false) {
-    // Read file and check for mp4
+  new Promise(async (resolve, reject) => {
+    if (file != false) {
+      // Read file and check for mp4
       if (file.mimetype != 'video/mp4') {
           res.status(400).send('Please make sure you have uploaded a video file (mp4).');
           return;
@@ -87,117 +88,135 @@ app.post('/upload', async (req, res) => {
           if (frameCount == 0) {
             frameCount = Math.round(duration * fps);
           }
+          resolve("success");
         });
       });
     } else {
       filepath = link;
       frameCount = null;
-      // Talk to YouTube API to receive video duration
-      // Video duration needed to calculate fps & audio trigger
+      // Talk to YouTube API to receive video duration (needed to calculate fps & audio trigger)
       const youtubeId = extractYouTubeId(link);
       await fetch(`https://www.googleapis.com/youtube/v3/videos?id=16Ci_2bN_zc&part=contentDetails&key=${secret.youtube}`).then((res) => {
         const data = res.json().then((data) => {
           duration = YTDurationToSeconds(data.items[0].contentDetails.duration);
           console.log("YouTube Duration: " + duration);
-          // TODO: Call Function to handle Freesound API
+          resolve("success");
         });
       });
     }
-    
+  }).then(async () => {
     // Create JSON object
-    const data = {
-      "filepath": filepath
-    };
-
+    const data = { "filepath": filepath };
+  
     // Make request to python server
-    // TODO: Activate following line
-    // const pythonPostResponse = await post(pyServer + pyPath, data);
-    const pythonPostResponse = { // TODO: Exchange with line above
-      "status": "SUCCESS",
-      "data": {
-        "file": filename,
-        "total_frames": 700,
-        "objects": [
-          {
-            "1" : [
-              {
-                "object": "goose",
-                "count": "1",
-              },
-            ],
-            "181" : [
-              {
-                "object": "goose",
-                "count": "2",
-              },
-              {
-                "object": "goose",
-                "count": "1",
-              }
-            ],
-            "361" : [
-              {
-                "object": "goose",
-                "count": "1",
-              },
-            ],
-            "541" : [
-              {
-                "object": "goose",
-                "count": "3",
-              },
-            ],
+    new Promise(async (resolve, reject) => {
+      // vv********************* TEST RESPONSE *********************vv
+      pythonPostResponse = { // TODO: Exchange with line above
+        "status": "SUCCESS",
+        "data": {
+          "file": filename,
+          "total_frames": 700,
+          "objects": [
+            {
+              "1" : [
+                {
+                  "object": "goose",
+                  "count": "1",
+                },
+              ],
+              "120" : [
+                {
+                  "object": "chair",
+                  "count": "1",
+                },
+              ],
+              "181" : [
+                {
+                  "object": "goose",
+                  "count": "2",
+                },
+                {
+                  "object": "goose",
+                  "count": "1",
+                }
+              ],
+              "361" : [
+                {
+                  "object": "goose",
+                  "count": "1",
+                },
+              ],
+              "541" : [
+                {
+                  "object": "goose",
+                  "count": "3",
+                },
+              ],
+            }
+          ]
+        }
+      };
+      const detections = pythonPostResponse.data.objects[0];
+      resolve(detections);
+      // ^^********************* TEST RESPONSE *********************^^
+      /* await post(pyServer + pyPath, data).then((res) => {
+        res.json().then((json) => {
+          pythonPostResponse = json;
+          const detections = pythonPostResponse.data.objects[0];
+          resolve(detections);
+        });
+      }); */
+    }).then(async (detections) => {
+      // API Calls
+      const promises = [];                            // Array for collecting promises to wait for
+      const audioJson = {"soundList":[]};
+      for (let frame in detections) {                 // for every frame
+        for (let object of detections[frame]) {       // for every animal
+          const query = object.object;
+            const filter = "duration:%5B1%20TO%206%5D"  // URL encoded: 'duration:[1 TO 6]' (seconds)
+            console.log("Frame: " + frame + " | Count: " + object.count + " | Query: " + query);
+            await fetch(`https://freesound.org/apiv2/search/text/?query=${query}&filter=${filter}&token=${secret.freesound}`).then((res) => {
+              promises.push(new Promise((resolve, reject) => {
+                res.json().then((json) => {
+                  // TODO: Check if json response not empty
+                  // Collect ids for query-matching sounds
+                  for (let i = 0; i < object.count; i++) {
+                    // Reset 'i' if there are no more results
+                    if (json.results.length < object.count && i + 1 == json.results.length) { i = 0 }
+                    audioJson.soundList.push({"id": json.results[i].id, "name": query, "time": frame/fps, "url": null});
+                    // TODO: Calculate fps from python response on youtube videos
+                  }
+                  resolve("success");
+                });
+              }));
+            });
           }
-        ]
-      }
-    };
-    const detections = pythonPostResponse.data.objects[0];
-
-    // API Calls
-    const promises = [];
-    const audioJson = {"soundList":[]};
-    for (let frame in detections) { // for every frame
-      for (let object of detections[frame]) { // for every animal
-        const query = object.object;
-        console.log("Frame: " + frame + " | Count: " + object.count + " | Query: " + query);
-        await fetch(`https://freesound.org/apiv2/search/text/?query=${query}&token=${secret.freesound}`).then((res) => {
-          promises.push(new Promise((resolve, reject) => {
-            res.json().then((json) => {
-              // TODO: Check if json response not empty
-              // Collect ids for query-matching sounds
-              for (let i = 0; i < object.count; i++) {
-                // Reset 'i' if there are no more results
-                if (json.results.length < object.count && i + 1 == json.results.length) { i = 0 }
-                audioJson.soundList.push({"id": json.results[i].id, "name": query, "time": frame/fps, "url": null});
-                // TODO: Calculate fps from python response on youtube videos
-              }
-              resolve("success");
-            });
-          }));
-        });
-      }
     }
-    // Collect preview mp3 urls, when all promises have been resolved
-    Promise.all(promises).then(async (resolveValues) => {
-      console.log(audioJson);
-      promises.length = 0;
-      for (let sound of audioJson.soundList) {
-        await fetch(`https://freesound.org/apiv2/sounds/${sound.id}/?token=${secret.freesound}`).then((res) => {
-          promises.push(new Promise((resolve, reject) => {
-            res.json().then((json) => {
-              sound.url = json.previews["preview-lq-mp3"]; // Low quality mp3
-              resolve("success");
-            });
-          }));
-        });
       }
-      Promise.all(promises).then((resolveValues) => {
-        audioJson.filename = filename; // ATTENTION: filename needs to be included in the response!
+      // Collect preview mp3 urls, when all promises have been resolved
+      Promise.all(promises).then(async (resolveValues) => {
         console.log(audioJson);
-        res.send(audioJson);
+        promises.length = 0;
+        for (let sound of audioJson.soundList) {
+          await fetch(`https://freesound.org/apiv2/sounds/${sound.id}/?token=${secret.freesound}`).then((res) => {
+            promises.push(new Promise((resolve, reject) => {
+              res.json().then((json) => {
+                sound.url = json.previews["preview-lq-mp3"]; // Low quality mp3
+                resolve("success");
+              });
+            }));
+          });
+        }
+        Promise.all(promises).then((resolveValues) => {
+          audioJson.filename = filename; // ATTENTION: filename needs to be included in the response!
+          console.log(audioJson);
+          res.send(audioJson);
+        });
       });
     });
+  });
 });
+
 
 // Delete specific video file
 app.post('/', function(req, res) {
@@ -277,8 +296,8 @@ function YTDurationToSeconds(duration) {
 /**
 * @author J W & Sobral
 * @url https://stackoverflow.com/a/27728417
-* @date visited: 2022-12-03
-* @description: Extracts the video ID from a YouTube link
+* @date visited 2022-12-03
+* @description Extracts the video ID from a YouTube link
 * @param {string} url - YouTube link
 */
 function extractYouTubeId(url) {

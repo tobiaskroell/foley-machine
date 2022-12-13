@@ -204,6 +204,7 @@ h1 {
   mask: url(/img/loading.svg) no-repeat center;
   width: 100%;
   height: 50px;
+  -webkit-mask-size: contain;
   mask-size: contain;
 }
 

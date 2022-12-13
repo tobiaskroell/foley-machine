@@ -7,8 +7,23 @@ let app = express();
 let bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 
+/**
+ * Find available options for express-fileupload here:
+ * @url https://www.npmjs.com/package/express-fileupload#user-content-available-options
+ */
 let fileUpload = require('express-fileupload');
-app.use(fileUpload());
+const fileSizeLimit = 1024 * 1024 * 40; // 40MB
+app.use(fileUpload({
+  limits: {
+    fileSize: fileSizeLimit,    // file size limit in bytes
+    files: 1                    // file limit in multipart forms
+  },
+  debug: true,              // show debug messages
+  safeFileNames: true,      // strips non-alphanumeric chars except dashes & underscores
+  preserveExtension: true,  // preserves file extension, when using safeFileNames (default 3 chars)
+  abortOnLimit: true,       // Returns HTTP 413 when size limit is reached
+  useTempFiles: true,       // don't use RAM for uploaded files
+}));
 
 let ffprobe = require('ffprobe'), ffprobeStatic = require('ffprobe-static');
 

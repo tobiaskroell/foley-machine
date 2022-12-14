@@ -6,7 +6,7 @@ var panningNodes = [];
 var filterNodes = [];
 var convolverBuffers = [];
 var convolverNodes = [];
-
+var masterGain;
 var soundList = `
 {
   "soundList":
@@ -17,7 +17,6 @@ var soundList = `
 } 
 `
 let responseFiles = ["room", "church", "cave", "garage","room2"]
-
 
 //function to load impulsresponse files
 function loadImpulseResponse(responseFiles) {
@@ -45,7 +44,7 @@ function loadImpulseResponse(responseFiles) {
 async function loadAudioElements(data) {
   await loadImpulseResponse(responseFiles);
   let jsonData = data // JSON.parse(data)
-  let masterGain = context.createGain();
+  masterGain = context.createGain();
   masterGain.gain.value = 0.5;
   for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
     loadWebSound(jsonData.soundList[i].url, i);
@@ -65,10 +64,10 @@ async function loadAudioElements(data) {
   }
 
   createAudioDiv(jsonData);
-  /* document.querySelector("#playPauseButton").addEventListener("click", function (e) {
+   document.querySelector("#playPauseButton").addEventListener("click", function (e) {
     console.log("play")
     testButton(jsonData)
-  } */
+  } ); 
 }
 
 // function that loads audio buffer data from web in the audioBuffers array
@@ -96,19 +95,17 @@ function playSoundAtTime(i, time) {
   bufferSourceNodes[i].start(context.currentTime + time);
 }
 
-//create div elements with audio control elements attaches event listeners to sliders
+//creates div elements with audio control elements, attaches event listeners to sliders
 function createAudioDiv(jsonData) {
   let parentDiv = document.getElementById("audioElementsFrame");
-
   let master = document.createElement("div")
   master.setAttribute("class", "master")
   master.setAttribute("id", `master`)
-  master.innerHTML = '<div><label for="volume">Volume</label><input class="slider" type="range" id="volumeSlider${channel}" name="volume" min="0" max="100" value="50"><p id="volumeOutput${channel}"> 50 </p></div>'
+  master.innerHTML = '<div><label for="volume">Master Volume</label><input class="slider" type="range" id="masterSlider" name="master" min="0" max="100" value="50"><p id="masterOutput"> 50 </p></div>'
   parentDiv.appendChild(master)
   document.querySelector("#masterSlider").addEventListener("input", function (e) {
-    changeParameter(e, i)
+    changeParameter(e, "0")
   });
-  
   for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
     let channel = document.createElement("div")
     channel.setAttribute("class", "channel")
@@ -135,13 +132,11 @@ function changeParameter(e, i) {
   switch (e.target.id) {
     case "masterSlider":
       document.querySelector("#masterOutput").innerHTML = (e.target.value);
-      gainNodes[i].gain.value = e.target.value / 100;
-
+      masterGain.gain.value = e.target.value / 100;
       break;
     case "volumeSlider" + i:
       document.querySelector("#volumeOutput" + i).innerHTML = (e.target.value);
       gainNodes[i].gain.value = e.target.value / 100;
-
       break;
     case "panningSlider" + i:
       document.querySelector("#panningOutput" + i).innerHTML = (e.target.value / 100) + " ";
@@ -160,7 +155,6 @@ function changeParameter(e, i) {
 // function that returns html for audio control elements
 function returnAudioElement(name, channel) {
   return `
-
   <input type="checkbox" name="power" class="powerswitch" checked>
   <h3 class="channelTitle">${name}</h3>
   <div>
@@ -179,7 +173,6 @@ function returnAudioElement(name, channel) {
   <p id="pitchOutput${channel}"> 1 </p>
   </div>
   <div>
-
   <label for="pitch">Reverb</label>
   <select id="selectList${channel}">
     <option value="room">Room</option>
@@ -189,7 +182,6 @@ function returnAudioElement(name, channel) {
     <option value="room2">Room2</option>
 </select>
   </div>
-
   `
 }
 

@@ -118,8 +118,10 @@ function dropzoneHandler($dropzone, $input) {
                     $('.output').removeClass('hidden');     // Show video area
                     // Show MP4 or YouTube
                     if (formData.has('file')) { 
+                        loadAudioElements(data);
                         createMp4Player(data.filename); // Takes response from server! filename needs to be present!
                     } else { 
+                        loadAudioElements(data);
                         createYouTubePlayer(formData.get('link')); 
                     }
 

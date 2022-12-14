@@ -43,7 +43,7 @@ function loadImpulseResponse(responseFiles) {
 // function that gets soundList and creates audio control elements and WebAudio Nodes
 async function loadAudioElements(data) {
   await loadImpulseResponse(responseFiles);
-  let jsonData = JSON.parse(data)
+  let jsonData = data // JSON.parse(data)
   for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
     loadWebSound(jsonData.soundList[i].url, i);
     gainNodes[i] = context.createGain();
@@ -61,6 +61,10 @@ async function loadAudioElements(data) {
   }
 
   createAudioDiv(jsonData);
+  /* document.querySelector("#playPauseButton").addEventListener("click", function (e) {
+    console.log("play")
+    testButton(jsonData)
+  } */
 }
 
 // function that loads audio buffer data from web in the audioBuffers array
@@ -173,17 +177,17 @@ function returnAudioElement(name, channel) {
 
 function testButton(data) {
   console.log('testButton')
-  let jsonData = JSON.parse(data)
+  let jsonData = data;
   for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
     playSoundAtTime(i, jsonData.soundList[i].time);
   }
 }
 // play button for testing
-document.querySelector("#playPauseButton").addEventListener("click", function (e) {
+/* document.querySelector("#playPauseButton").addEventListener("click", function (e) {
   console.log("play")
   testButton(soundList)
-});
+}); */
 
-loadAudioElements(soundList)
+// loadAudioElements(soundList)
 
 

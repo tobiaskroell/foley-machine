@@ -78,7 +78,6 @@ def run(
         dnn=False,  # use OpenCV DNN for ONNX inference
         vid_stride=1,  # video frame-rate stride
         total_frames=0,
-        video_name='',
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -88,7 +87,7 @@ def run(
     screenshot = source.lower().startswith('screen')
 
     detections_dict_exmpl = {
-        "file": {video_name},
+        "file": "test.mp4",
         "total_frames": {total_frames},
         "detections":
         [
@@ -118,7 +117,7 @@ def run(
     }
     detections_dict = {}
     detections_dict['detections'] = []
-    pdb.set_trace()
+    #pdb.set_trace()
     if is_url and is_file:
         source = check_file(source)  # download
 
@@ -193,6 +192,7 @@ def run(
 
                 # Print results
                 for c in det[:, 5].unique():
+                    #pdb.set_trace()
                     count+=1
                     n = (det[:, 5] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}, "  # add detection class to string (cat, dog, ...)
@@ -215,11 +215,15 @@ def run(
             #################################
             # @author: Kevin
             # Add detections to dict
-            detected_frame = int(re.findall('\((.+?)\/', s)[0])  # get frame number
-            detections_in_frame = re.findall('(?<=384x640).*$', s)[0]  # get detection string
-            detections_in_frame = detections_in_frame.split(',')  # split into list
-            detections_in_frame = list(map(lambda x: x.strip(), detections_in_frame))  # remove whitespace
-            detections_in_frame = [x for x in detections_in_frame if x]  # remove empty strings
+            # pdb.set_trace()
+            if webcam:
+                detected_frame = frame + 1
+            else:
+                detected_frame = int(re.findall('\((.+?)\/', s)[0])  # get frame number
+                detections_in_frame = re.findall('(?<=384x640)|(?<=640x384).*$', s)[0]  # get detection string
+                detections_in_frame = detections_in_frame.split(',')  # split into list
+                detections_in_frame = list(map(lambda x: x.strip(), detections_in_frame))  # remove whitespace
+                detections_in_frame = [x for x in detections_in_frame if x]  # remove empty strings
 
             # Append frame number to dict
             if len(detections_in_frame) > 0:
@@ -339,23 +343,22 @@ def main(opt):
     run(**vars(opt))
 
 
-def detect_objects(video_name, total_frames):
+def detect_objects(video_path, total_frames):
     """
     @author: Kevin\n
     Modified main function to run the model with static parameters.
     """
     check_requirements(exclude=('tensorboard', 'thop'))
     detections_dict = run(
-        source=f'../../node_server/public/video/{video_name}',
+        source=f'{video_path}',
         data='data/coco.yaml',
         weights='yolov5x.pt',
-        conf_thres=0.25,
+        conf_thres=0.25, # confidence threshold
         device='0',
         vid_stride=150,
         nosave=True,
         save_txt=True,
         total_frames=total_frames,
-        video_name=video_name,
         project='runs/detect',
     )
 

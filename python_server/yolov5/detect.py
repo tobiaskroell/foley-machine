@@ -26,21 +26,14 @@ Usage - formats:
                                  yolov5s_paddle_model       # PaddlePaddle
 """
 
-from yolov5.utils.torch_utils import select_device, smart_inference_mode
-from yolov5.utils.plots import Annotator, colors, save_one_box
-from yolov5.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
-from yolov5.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from yolov5.models.common import DetectMultiBackend
 import argparse
 import os
 import platform
 import sys
-from pathlib import Path
 import torch
 import re
 import pdb
-
+from pathlib import Path
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -48,6 +41,12 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
+from models.common import DetectMultiBackend
+from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
+from utils.torch_utils import select_device, smart_inference_mode
+from utils.plots import Annotator, colors, save_one_box
+from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
+                           increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
 
 @smart_inference_mode()
 def run(
@@ -119,7 +118,7 @@ def run(
     }
     detections_dict = {}
     detections_dict['detections'] = []
-
+    pdb.set_trace()
     if is_url and is_file:
         source = check_file(source)  # download
 
@@ -150,6 +149,7 @@ def run(
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
 
     detection_count = 0
+    count=0
     for path, im, im0s, vid_cap, s in dataset:
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
@@ -172,6 +172,7 @@ def run(
         # Process predictions
 
         for i, det in enumerate(pred):  # per image
+            
             seen += 1
             if webcam:  # batch_size >= 1
                 p, im0, frame = path[i], im0s[i].copy(), dataset.count
@@ -192,6 +193,7 @@ def run(
 
                 # Print results
                 for c in det[:, 5].unique():
+                    count+=1
                     n = (det[:, 5] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}, "  # add detection class to string (cat, dog, ...)
 
@@ -267,7 +269,9 @@ def run(
                         save_path = str(Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
                         vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
                     vid_writer[i].write(im0)
-
+        
+    print(count)
+    # pdb.set_trace()
     # Print results
     t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
     LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
@@ -352,6 +356,7 @@ def detect_objects(video_name, total_frames):
         save_txt=True,
         total_frames=total_frames,
         video_name=video_name,
+        project='runs/detect',
     )
 
     return detections_dict

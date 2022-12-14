@@ -1,17 +1,18 @@
 from fastapi import FastAPI, Request
 import pdb
-import os
-from yolov5 import detect
+import os, sys
+from pathlib import Path
 
 app = FastAPI()
 
+from yolov5 import detect
 
 @app.post("/video")
 async def video(req_body: Request):
     data = await req_body.json()
     filename = data['filename']
     total_frames = data['total_frames']
-
+    
     # Change directory to yolov5
     if not os.getcwd().endswith("yolov5"):
         os.chdir(os.getcwd() + "/yolov5/")
@@ -22,3 +23,6 @@ async def video(req_body: Request):
         "status": "SUCCESS",
         "data": detections_dict
     }
+
+# if __name__ == "__main__":
+#     detect.detect_objects('animals.mp4', 6572)

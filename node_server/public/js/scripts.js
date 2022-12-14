@@ -124,10 +124,15 @@ function dropzoneHandler($dropzone, $input) {
                     }
 
                 },
-                error: function(error) {
+                error: function(jqxhr, error, exc) {
                     $dropzone.removeClass('is_uploading');
-                    $(".is_processing").addClass('hidden');
-                    alert("An error occured, please try again.");
+                    $('.dropzone_input').removeClass('hidden');
+                    $('.is_processing').addClass('hidden');
+                    if (exc == 'Payload Too Large') {
+                        alert("File size is too large! Please try again.");    
+                    } else {
+                        alert("An error occured! Please try again.");
+                    }
                 }
             });
             // TODO: Do something while waiting for python response
@@ -138,7 +143,6 @@ function dropzoneHandler($dropzone, $input) {
     });
     // Listen to input changes and trigger submit
     $input.on('change', function(e) {
-        console.log($('.dropzone_input'));
         video = $input[0].files[0];
         if (!fileIsMp4(video, $dropzone)) return;
         $dropzone.trigger('submit');
@@ -147,11 +151,11 @@ function dropzoneHandler($dropzone, $input) {
 
 // Checks file type and returns true if it is an mp4 file
 function fileIsMp4(file, form) {
-    if (file.type != 'video/mp4') {
+    if (file.type != 'video/mp4' || file.size > 1024*1024*40) {
         form.removeClass('is_uploading');
         /* $('.inputYouTube').removeClass('invisible'); */
         form.addClass('is_error');
-        alert("Please make sure you have uploaded a video file (mp4).");
+        alert("Please make sure you have uploaded a video file (mp4) under 40MB.");
         return false;
     }
     return true;

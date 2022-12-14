@@ -107,9 +107,14 @@ To install them, follow these two steps:
 
 ### Python server
 ```
-1. cd to the directory where requirements.txt is located.
+1. cd to python_server/ directory where requirements.txt is located.
 2. activate your virtualenv.
 3. run: pip install -r requirements.txt in your shell.
+4. see https://pytorch.org/get-started/locally to install pytorch and 
+   choose an installation that is suitable for your system. For 
+   installation on AWS (Linux) install with the following command:
+   pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+   
 ```
 
 ### Decrypt API-Tokens

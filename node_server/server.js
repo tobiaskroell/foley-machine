@@ -123,12 +123,17 @@ app.post('/upload', async (req, res) => {
   
     // Make request to python server
     new Promise(async (resolve, reject) => {
-      await post(pyServer + pyPath, data).then((res) => {
-        pythonPostResponse = JSON.parse(res);
-        console.log(typeof(pythonPostResponse));
-        const detections = pythonPostResponse.data.detections;
-        resolve(detections);
-      });
+      try {
+        await post(pyServer + pyPath, data).then((res) => {
+          pythonPostResponse = JSON.parse(res);
+          console.log(typeof(pythonPostResponse));
+          const detections = pythonPostResponse.data.detections;
+          resolve(detections);
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(502).send('Bad Gateway:\nPython-Server not responding. Please try again!');
+      }
     }).then(async (detections) => {
       // API Calls
       const promises = [];                        // Array for collecting promises to wait for
@@ -140,21 +145,31 @@ app.post('/upload', async (req, res) => {
             if (animalList.includes(query)) {
               const filter = "duration:%5B1%20TO%206%5D"  // URL encoded: 'duration:[1 TO 6]' (seconds)
               console.log("Frame: " + frame + " | Count: " + object.count + " | Query: " + query);
-              await fetch(`https://freesound.org/apiv2/search/text/?query=${query}&filter=${filter}&token=${secret.freesound}`).then((res) => {
-                promises.push(new Promise((resolve, reject) => {
-                  res.json().then((json) => {
-                    // TODO: Check if json response not empty
-                    // Collect ids for query-matching sounds
-                    for (let i = 0; i < object.count; i++) {
-                      // Reset 'i' if there are no more results
-                      if (json.results.length < object.count && i + 1 == json.results.length) { i = 0 }
-                      audioJson.soundList.push({"id": json.results[i].id, "name": query, "time": frame/fps, "url": null});
-                      // TODO: Calculate fps from python response on youtube videos
-                    }
-                    resolve("success");
-                  });
-                }));
-              });
+              try {
+                await fetch(`https://freesound.org/apiv2/search/text/?query=${query}&filter=${filter}&token=${secret.freesound}`).then((res) => {
+                  if (res.status == 200) {
+                    promises.push(new Promise((resolve, reject) => {
+                      res.json().then((json) => {
+                        // TODO: Check if json response not empty
+                        // Collect ids for query-matching sounds
+                        for (let i = 0; i < object.count; i++) {
+                          // Reset 'i' if there are no more results
+                          if (json.results.length < object.count && i + 1 == json.results.length) { i = 0 }
+                          audioJson.soundList.push({"id": json.results[i].id, "name": query, "time": frame/fps, "url": null});
+                          // TODO: Calculate fps from python response on youtube videos
+                        }
+                        resolve("success");
+                      });
+                    }));
+                  } else {
+                    console.error("Response Status: " + res.status);
+                    return res.status(502).send('Bad Gateway:\nFreesound-API not responding. Please try again!');
+                  }
+                });
+              } catch (e) {
+                console.error(e);
+                return res.status(502).send('Bad Gateway:\nFreesound-API not responding. Please try again!');
+              }
             }
           }
         }
@@ -164,14 +179,24 @@ app.post('/upload', async (req, res) => {
         console.log(audioJson);
         promises.length = 0;
         for (let sound of audioJson.soundList) {
-          await fetch(`https://freesound.org/apiv2/sounds/${sound.id}/?token=${secret.freesound}`).then((res) => {
-            promises.push(new Promise((resolve, reject) => {
-              res.json().then((json) => {
-                sound.url = json.previews["preview-lq-mp3"]; // Low quality mp3
-                resolve("success");
-              });
-            }));
-          });
+          try {
+            await fetch(`https://freesound.org/apiv2/sounds/${sound.id}/?token=${secret.freesound}`).then((res) => {
+              if (res.status == 200) {
+                promises.push(new Promise((resolve, reject) => {
+                  res.json().then((json) => {
+                    sound.url = json.previews["preview-lq-mp3"]; // Low quality mp3
+                    resolve("success");
+                  });
+                }));  
+              } else {
+                console.error("Response Status: " + res.status);
+                return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
+              }  
+            });
+          } catch (e) {
+            console.error(e);
+            return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
+          }
         }
         Promise.all(promises).then((resolveValues) => {
           audioJson.filename = filename; // ATTENTION: filename needs to be included in the response!

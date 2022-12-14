@@ -133,7 +133,7 @@ function dropzoneHandler($dropzone, $input) {
                     if (exc == 'Payload Too Large') {
                         alert("File size is too large! Please try again.");    
                     } else {
-                        alert("An error occured! Please try again.");
+                        alert(jqxhr.responseText);
                     }
                 }
             });

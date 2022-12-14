@@ -83,7 +83,6 @@ const animalList = [
 	"magpie",
 	"chickadee",
 	"american dipper",
-	"kite",
 	"bald eagle",
 	"vulture",
 	"great grey owl",

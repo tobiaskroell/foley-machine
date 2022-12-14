@@ -22,7 +22,6 @@ const animalList = [
 	"bear",
 	"pig",
 	"camel",
-	"formula 1",
 	"crab",
 	"antelope",
 	"parrot",

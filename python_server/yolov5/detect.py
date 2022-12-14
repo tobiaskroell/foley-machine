@@ -117,7 +117,7 @@ def run(
     }
     detections_dict = {}
     detections_dict['detections'] = []
-    #pdb.set_trace()
+    
     if is_url and is_file:
         source = check_file(source)  # download
 
@@ -215,12 +215,11 @@ def run(
             #################################
             # @author: Kevin
             # Add detections to dict
-            # pdb.set_trace()
             if webcam:
                 detected_frame = frame + 1
             else:
                 detected_frame = int(re.findall('\((.+?)\/', s)[0])  # get frame number
-                detections_in_frame = re.findall('(?<=384x640)|(?<=640x384).*$', s)[0]  # get detection string
+                detections_in_frame = re.findall('(?<=384x640|640x384).*$', s)[0]  # get detection string
                 detections_in_frame = detections_in_frame.split(',')  # split into list
                 detections_in_frame = list(map(lambda x: x.strip(), detections_in_frame))  # remove whitespace
                 detections_in_frame = [x for x in detections_in_frame if x]  # remove empty strings
@@ -274,8 +273,6 @@ def run(
                         vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
                     vid_writer[i].write(im0)
         
-    print(count)
-    # pdb.set_trace()
     # Print results
     t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
     LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
@@ -285,6 +282,9 @@ def run(
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
     
+    print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+    print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+    print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
     print(detections_dict)
     print_dict(detections_dict)
     return detections_dict
@@ -343,7 +343,7 @@ def main(opt):
     run(**vars(opt))
 
 
-def detect_objects(video_path, total_frames):
+def detect_objects(video_path):
     """
     @author: Kevin\n
     Modified main function to run the model with static parameters.
@@ -358,7 +358,6 @@ def detect_objects(video_path, total_frames):
         vid_stride=150,
         nosave=True,
         save_txt=True,
-        total_frames=total_frames,
         project='runs/detect',
     )
 

@@ -17,7 +17,7 @@ async def video(req_body: Request):
     if not os.getcwd().endswith("yolov5"):
         os.chdir(os.getcwd() + "/yolov5/")
 
-    detections_dict = detect.detect_objects(filepath, 100)
+    detections_dict = detect.detect_objects(filepath)
 
     return {
         "status": "SUCCESS",

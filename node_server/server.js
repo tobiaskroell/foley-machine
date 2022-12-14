@@ -27,6 +27,17 @@ app.use(fileUpload({
 
 let ffprobe = require('ffprobe'), ffprobeStatic = require('ffprobe-static');
 
+
+//Wipe video folder every 10 minutes video is older than 1 hour
+const findRemoveSync = require('find-remove');
+setInterval(() => {
+  findRemoveSync(__dirname + '/public/video', {
+    age: { seconds: 3600 },
+    extensions: '.mp4',
+    //limit: 100
+  })
+}, 600000);
+
 const https = require('https');
 const http = require('http');
 const fs = require("fs");
@@ -178,7 +189,11 @@ app.post('/', function(req, res) {
     console.log(req.body.file);
     if (req.body.file != undefined) {
       const filename = req.body.file;
-      fs.unlinkSync(__dirname + '/public/video/' + filename);
+      try {
+        fs.unlinkSync(__dirname + '/public/video/' + filename);
+      } catch (err) {
+        console.error(err)
+      }
       res.send({success: true})
     } else {
       res.send({success: false});

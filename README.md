@@ -181,6 +181,7 @@ Start the server
 ```
 
 ### Start Python server
+Change directory to ../python_server/ in your shell.
 ```
 uvicorn main:app --reload
 ```

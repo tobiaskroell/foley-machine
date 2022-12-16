@@ -352,7 +352,7 @@ def detect_objects(video_path):
     detections_dict = run(
         source=f'{video_path}',
         data='data/coco.yaml',
-        weights='yolov5x.pt',
+        weights='yolov5s.pt',
         conf_thres=0.25, # confidence threshold
         device='cpu',
         vid_stride=150,

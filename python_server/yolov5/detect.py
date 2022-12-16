@@ -354,7 +354,7 @@ def detect_objects(video_path):
         data='data/coco.yaml',
         weights='yolov5x.pt',
         conf_thres=0.25, # confidence threshold
-        device='0',
+        device='cpu',
         vid_stride=150,
         nosave=True,
         save_txt=True,

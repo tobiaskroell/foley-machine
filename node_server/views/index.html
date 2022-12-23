@@ -37,13 +37,23 @@
             <div class="output hidden">
                 <!-- Video output area -->
                 <div class="output_video"> 
-                    <div class="mp4-container">
-                        <video class="mp4-video hidden" controls muted autoplay>
+                    <div class="mp4-container hidden">
+                        <video class="mp4-video" muted autoplay>
                             <source src="" type="video/mp4">
                         </video>
+                        <div class="video-play-overlay_container">
+                            <button id="playPauseButton" class="video-play-overlay_button" onclick="console.log('clicked button')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#F5F0F6"><path d="M6 22v-20l18 10-18 10z"></path></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="youtube-video hidden">
                         <div id="youtube-video"></div> <!-- Will be replaced by YouTube-Video with JS -->
+                        <div class="video-play-overlay_container">
+                            <button id="playPauseButton" class="video-play-overlay_button" onclick="console.log('clicked button')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#F5F0F6"><path d="M6 22v-20l18 10-18 10z"></path></svg>
+                            </button>
+                        </div>
                     </div>
                     <p class="timecode"></p>
                     <input class="reloadButton" type="button" value="Upload new!" onclick="reloadAndDelete()">
@@ -51,7 +61,6 @@
                 <!-- Audio output area -->
                 <div class="output_sound">
                     <h2>Audio Mixer</h2>
-                    <button id="playPauseButton">Play</button>
                     <div id="audioElementsFrame" class="audioElementsFrame">
                         <!-- Area for audio elements -->                    
                     </div>

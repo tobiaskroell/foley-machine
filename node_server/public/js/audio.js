@@ -64,10 +64,11 @@ async function loadAudioElements(data) {
   }
 
   createAudioDiv(jsonData);
-   document.querySelector("#playPauseButton").addEventListener("click", function (e) {
-    console.log("play")
-    testButton(jsonData)
-  } ); 
+  document.querySelector("#playPauseButton").addEventListener("click", function (e) {
+    console.log("play audio");
+    document.getElementsByClassName("mp4-video")[0].play();
+    testButton(jsonData);
+  }); 
 }
 
 // function that loads audio buffer data from web in the audioBuffers array
@@ -89,7 +90,7 @@ function loadWebSound(url, i) {
 // plays the sound at the given time
 function playSoundAtTime(i, time) {
   bufferSourceNodes[i] = context.createBufferSource();
-  bufferSourceNodes[i].playbackRate.value = document.querySelector("#pitchOutput" + i).innerHTML
+  bufferSourceNodes[i].playbackRate.value = document.querySelector("#pitchOutput" + i).innerHTML;
   bufferSourceNodes[i].buffer = audioBuffers[i];
   bufferSourceNodes[i].connect(convolverNodes[i]);
   bufferSourceNodes[i].start(context.currentTime + time);

@@ -119,7 +119,7 @@ function dropzoneHandler($dropzone, $input) {
                     // Show MP4 or YouTube
                     if (formData.has('file')) { 
                         loadAudioElements(data);
-                        createMp4Player(data.filename); // Takes response from server! filename needs to be present!
+                        createMp4Player(data); // Takes response from server! filename needs to be present!
                     } else { 
                         loadAudioElements(data);
                         createYouTubePlayer(formData.get('link')); 
@@ -232,22 +232,24 @@ function extractYouTubeId(url) {
 }
 
 
-function createMp4Player(filename) {
+function createMp4Player(data) {
     isYoutube = false;
     videoplayer = $('.mp4-video');
     $('.mp4-video')
         .on('play', function() {
-            console.log('Playing');
+            console.log('Playing Video');
             videoIsPlaying = true;
             getTimecode(videoplayer[0]);
+            testButton(data);
         })
         .on('pause ended', function() {
             videoIsPlaying = false;
         });
-    $('.mp4-video').removeClass('hidden');
-    const source = '/video/' + filename;
+    $('.mp4-container').removeClass('hidden');
+    const source = '/video/' + data.filename;
     $('.mp4-video source').attr('src', source);
     $('.mp4-video')[0].load();
+    $('.mp4-video')[0].pause();
 }
 
 // Reads and returns current timecode of video

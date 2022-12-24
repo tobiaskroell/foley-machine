@@ -240,7 +240,6 @@ function createMp4Player(data) {
             console.log('Playing Video');
             videoIsPlaying = true;
             getTimecode(videoplayer[0]);
-            testButton(data);
         })
         .on('pause ended', function() {
             videoIsPlaying = false;

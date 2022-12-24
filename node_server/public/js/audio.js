@@ -1,4 +1,5 @@
 var context = new AudioContext();
+var animalIndices = [];
 var audioBuffers = [];
 var bufferSourceNodes = [];
 var gainNodes = [];
@@ -43,61 +44,81 @@ function loadImpulseResponse(responseFiles) {
 // function that gets soundList and creates audio control elements and WebAudio Nodes
 async function loadAudioElements(data) {
   await loadImpulseResponse(responseFiles);
-  let jsonData = data // JSON.parse(data)
   masterGain = context.createGain();
   masterGain.gain.value = 0.5;
-  for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
-    loadWebSound(jsonData.soundList[i].url, i);
-    gainNodes[i] = context.createGain();
-    gainNodes[i].gain.value = 0.5;
-    panningNodes[i] = context.createStereoPanner();
-    panningNodes[i].pan.value = 0;
-    //filterNodes[i] = context.createBiquadFilter();
-    //filterNodes[i].type = "notch";
-    convolverNodes[i] = context.createConvolver();
-    convolverNodes[i].buffer = convolverBuffers[0];
-    convolverNodes[i].normalize = true;
-    convolverNodes[i].connect(panningNodes[i]);
-    panningNodes[i].connect(gainNodes[i]);
-    gainNodes[i].connect(masterGain);
-    masterGain.connect(context.destination);
+  nodeGroup = 0;
+  for (let i = 0; i < Object.keys(data.soundList).length; i++) {
+    // check if animal is already in animalIndices array, if not add it
+    const index = animalIndices.findIndex(object => object.animal === data.soundList[i].name);
+    if (index > -1) {
+      animalIndices[index].soundList_indices.push(i);
+    } else {
+      animalIndices.push({ animal: data.soundList[i].name, node_group: nodeGroup, soundList_indices: [i] });
+      nodeGroup += 1;
+    }
   }
+  createAudioDiv();
+  for (const element of animalIndices) {
+    console.log(element);
+    gainNodes[element.node_group] = context.createGain();
+    gainNodes[element.node_group].gain.value = 0.5;
+    panningNodes[element.node_group] = context.createStereoPanner();
+    panningNodes[element.node_group].pan.value = 0;
+    //filterNodes[element.node_group] = context.createBiquadFilter();
+    //filterNodes[element.node_group].type = "notch";
+    convolverNodes[element.node_group] = context.createConvolver();
+    convolverNodes[element.node_group].buffer = convolverBuffers[0];
+    convolverNodes[element.node_group].normalize = true;
+    convolverNodes[element.node_group].connect(panningNodes[element.node_group]);
+    panningNodes[element.node_group].connect(gainNodes[element.node_group]);
+    gainNodes[element.node_group].connect(masterGain);
+  }
+  let promises = [];
+  for (let i = 0; i < Object.keys(data.soundList).length; i++) {
+    bufferSourceNodes[i] = context.createBufferSource();
+    let index = animalIndices.findIndex(object => object.animal === data.soundList[i].name);
+    bufferSourceNodes[i].playbackRate.value = document.querySelector("#pitchOutput" + animalIndices[index].node_group).innerHTML;
+    loadWebSound(data.soundList[i].url, i);
+    bufferSourceNodes[i].connect(convolverNodes[animalIndices[index].node_group]);
+  }
+  masterGain.connect(context.destination);
+  console.log(animalIndices);
 
-  createAudioDiv(jsonData);
+  // TODO: Play sounds triggered by video time, not button click
   document.querySelector("#playPauseButton").addEventListener("click", function (e) {
     console.log("play audio");
     document.getElementsByClassName("mp4-video")[0].play();
-    testButton(jsonData);
+    for (let i = 0; i < Object.keys(data.soundList).length; i++) {
+      bufferSourceNodes[i].start(context.currentTime + data.soundList[i].time);
+    }
   }); 
 }
 
 // function that loads audio buffer data from web in the audioBuffers array
 function loadWebSound(url, i) {
-  var request = new XMLHttpRequest();
-  request.open('GET', url, true);
-  request.responseType = 'arraybuffer';
-
-  // Decode asynchronously
-  request.onload = function () {
-    context.decodeAudioData(request.response, function (buffer) {
-      audioBuffers[i] = buffer;
-    });
-  }
-  request.send();
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.responseType = 'arraybuffer';
+    // Decode asynchronously
+    request.onload = function () {
+        context.decodeAudioData(request.response, function (buffer) {
+          bufferSourceNodes[i].buffer = buffer;
+        });
+      }
+    request.onerror = function () {
+      console.error('An error occurred while loading the audio file');
+    };
+    request.send();
 }
 
 // connects an buffer from the audioBuffers array to a gain node and then to the destination, 
 // plays the sound at the given time
 function playSoundAtTime(i, time) {
-  bufferSourceNodes[i] = context.createBufferSource();
-  bufferSourceNodes[i].playbackRate.value = document.querySelector("#pitchOutput" + i).innerHTML;
-  bufferSourceNodes[i].buffer = audioBuffers[i];
-  bufferSourceNodes[i].connect(convolverNodes[i]);
   bufferSourceNodes[i].start(context.currentTime + time);
 }
 
 //creates div elements with audio control elements, attaches event listeners to sliders
-function createAudioDiv(jsonData) {
+function createAudioDiv() {
   let parentDiv = document.getElementById("audioElementsFrame");
   let master = document.createElement("div")
   master.setAttribute("class", "master")
@@ -107,27 +128,28 @@ function createAudioDiv(jsonData) {
   document.querySelector("#masterSlider").addEventListener("input", function (e) {
     changeParameter(e, "0")
   });
-  for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
+  for (const object of animalIndices) {
     let channel = document.createElement("div")
     channel.setAttribute("class", "channel")
-    channel.setAttribute("id", `channel${i}`)
-    channel.innerHTML = returnAudioElement(jsonData.soundList[i].name, i)
+    channel.setAttribute("id", `channel${object.node_group}`)
+    channel.innerHTML = returnAudioElement(object.animal, object.node_group)
     parentDiv.appendChild(channel)
 
-    document.querySelector("#volumeSlider" + i).addEventListener("input", function (e) {
-      changeParameter(e, i)
+    document.querySelector("#volumeSlider" + object.node_group).addEventListener("input", function (event) {
+      changeParameter(event, object.node_group)
     });
-    document.querySelector("#panningSlider" + i).addEventListener("input", function (e) {
-      changeParameter(e, i)
+    document.querySelector("#panningSlider" + object.node_group).addEventListener("input", function (event) {
+      changeParameter(event, object.node_group)
     });
-    document.querySelector("#pitchSlider" + i).addEventListener("input", function (e) {
-      changeParameter(e, i)
+    document.querySelector("#pitchSlider" + object.node_group).addEventListener("input", function (event) {
+      changeParameter(event, object.node_group)
     });
-    document.querySelector("#selectList" + i).addEventListener("change", function (e) {
-      changeParameter(e, i)
+    document.querySelector("#selectList" + object.node_group).addEventListener("change", function (event) {
+      changeParameter(event, object.node_group)
     });
   }
 }
+
 // event handler for all sliders
 function changeParameter(e, i) {
   switch (e.target.id) {
@@ -185,26 +207,3 @@ function returnAudioElement(name, channel) {
   </div>
   `
 }
-
-
-
-function testButton(data) {
-  console.log('testButton')
-
-  let jsonData = data;
-  for (let i = 0; i < Object.keys(jsonData.soundList).length; i++) {
-    playSoundAtTime(i, jsonData.soundList[i].time);
-  }
-}
-// play button for testing
-
-/* document.querySelector("#playPauseButton").addEventListener("click", function (e) {
-  console.log("play")
-  testButton(soundList)
-
-}); */
-
-
-// loadAudioElements(soundList)
-
-

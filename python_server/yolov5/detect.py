@@ -282,9 +282,6 @@ def run(
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
     
-    print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-    print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-    print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
     print(detections_dict)
     print_dict(detections_dict)
     return detections_dict
@@ -351,7 +348,6 @@ def detect_objects(video_path):
     check_requirements(exclude=('tensorboard', 'thop'))
     detections_dict = run(
         source=f'{video_path}',
-        data='data/coco.yaml',
         weights='yolov5s.pt',
         conf_thres=0.5, # confidence threshold
         device='cpu',

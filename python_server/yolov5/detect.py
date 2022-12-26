@@ -340,22 +340,34 @@ def main(opt):
     run(**vars(opt))
 
 
-def detect_objects(video_path):
+def detect_objects(source, conf_thres):
     """
     @author: Kevin\n
     Modified main function to run the model with static parameters.
     """
-    check_requirements(exclude=('tensorboard', 'thop'))
-    detections_dict = run(
-        source=f'{video_path}',
-        weights='yolov5s.pt',
-        conf_thres=0.5, # confidence threshold
-        device='cpu',
-        vid_stride=150,
-        nosave=True,
-        save_txt=True,
-        project='runs/detect',
-    )
+
+    try:
+        check_requirements(exclude=('tensorboard', 'thop'))
+    except Exception as e:
+        print(e)
+
+    try:
+        detections_dict = run(
+            source=f'{source}',
+            weights='yolov5s.pt',
+            conf_thres=conf_thres, # confidence threshold
+            device='0',
+            vid_stride=150,
+            nosave=True,
+            save_txt=True,
+            project='runs/detect',
+        )
+    except FileNotFoundError:
+        raise ValueError('Invalid input for source parameter')
+        
+    except ValueError:
+        raise ValueError('Invalid input for confidence threshold parameter. Choose a value between 0 and 1.')
+
 
     return detections_dict
 

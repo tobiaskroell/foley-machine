@@ -364,7 +364,7 @@ def detect_objects(source, conf_thres):
         )
     except FileNotFoundError:
         raise ValueError('Invalid input for source parameter')
-        
+
     except ValueError:
         raise ValueError('Invalid input for confidence threshold parameter. Choose a value between 0 and 1.')
 

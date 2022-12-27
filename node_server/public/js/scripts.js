@@ -210,11 +210,22 @@ function onYouTubePlayerReady(event) {
 
 // Is called when YouTube player state changes
 function onYouTubeStateChange(e) { // YouTube player state change
+    // is playing
     if (videoplayer.playerInfo.playerState == 1) {
         videoIsPlaying = true;
-        getTimecode(videoplayer.playerInfo);
-    } else {
+        //getTimecode(videoplayer.playerInfo);
+        $('#playPauseButton').addClass('hidden');
+    // is paused
+    } else if (videoplayer.playerInfo.playerState == 2) {
         videoIsPlaying = false;
+        $('#playPauseButton').removeClass('hidden');
+        
+    // ended
+    } else if (videoplayer.playerInfo.playerState == 0) {
+        videoIsPlaying = false;
+        $('#playPauseButton').removeClass('hidden');
+        stopAudioBuffers();
+        createBufferSourceNodes(data);
     }
 }
 
@@ -235,14 +246,29 @@ function extractYouTubeId(url) {
 function createMp4Player(data) {
     isYoutube = false;
     videoplayer = $('.mp4-video');
+    let intervalId;
     $('.mp4-video')
         .on('play', function() {
             console.log('Playing Video');
             videoIsPlaying = true;
-            getTimecode(videoplayer[0]);
+            /* intervalId = setInterval( () => {
+                try {
+                    playSound(getTimecode(document.querySelector('.mp4-video')))
+                } catch {
+                    
+                }
+            }, 100 ); */
+            $('#playPauseButton').addClass('hidden');
         })
         .on('pause ended', function() {
             videoIsPlaying = false;
+            stopAudioBuffers();
+            //clearInterval(intervalId);
+        })
+        .on('ended', function() {
+            // recreate buffer source nodes on end
+            createBufferSourceNodes(data);
+            $('#playPauseButton').removeClass('hidden');
         });
     $('.mp4-container').removeClass('hidden');
     const source = '/video/' + data.filename;
@@ -257,10 +283,10 @@ function getTimecode(player) {
     let currentTime;
     if (videoIsPlaying) {
         currentTime = player.currentTime;
-        $('.timecode').text(currentTime);
+        /* $('.timecode').text(currentTime);
         setTimeout(() => {
             getTimecode(vidplayer);
-        }, 250);            // Timeinterval for updating timecode
+        }, 250);   */          // Timeinterval for updating timecode
         return currentTime; // Needed? Or check $('.timecode').text() instead?
     }
 }

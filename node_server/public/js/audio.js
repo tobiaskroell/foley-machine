@@ -1,6 +1,5 @@
 var context = new AudioContext();
-var animalIndices = [];
-var audioBuffers = [];
+var animalGroups = [];
 var bufferSourceNodes = [];
 var gainNodes = [];
 var panningNodes = [];
@@ -8,15 +7,7 @@ var filterNodes = [];
 var convolverBuffers = [];
 var convolverNodes = [];
 var masterGain;
-var soundList = `
-{
-  "soundList":
-    [{ "name": "cat", "time": 1, "url": "https://cdn.freesound.org/previews/412/412016_3652520-lq.mp3" }
-      , { "name": "dog", "time": 0, "url": "https://cdn.freesound.org/previews/160/160092_2888453-lq.mp3" }
-      , { "name": "chicken", "time": 5, "url": "https://cdn.freesound.org/previews/316/316920_4921277-lq.mp3" }
-      , { "name": "bird", "time": 7, "url": "https://cdn.freesound.org/previews/340/340861_6083171-lq.mp3" }]
-} 
-`
+var data;
 let responseFiles = ["room", "church", "cave", "garage","room2"]
 
 //function to load impulsresponse files
@@ -42,23 +33,59 @@ function loadImpulseResponse(responseFiles) {
 }
 
 // function that gets soundList and creates audio control elements and WebAudio Nodes
-async function loadAudioElements(data) {
+async function loadAudioElements(json) {
+  data = json;
   await loadImpulseResponse(responseFiles);
   masterGain = context.createGain();
   masterGain.gain.value = 0.5;
+  groupDetectedObjects(data);
+  createAudioHtml();
+  createEffectNodes();
+  createBufferSourceNodes(data);
+  masterGain.connect(context.destination);
+  console.log(animalGroups);
+
+  // TODO: Play sounds triggered by video time, not button click
+  document.querySelector("#playPauseButton").addEventListener("click", function (e) {
+    console.log("play audio");
+    document.getElementsByClassName("mp4-video")[0].play();
+    for (let i = 0; i < Object.keys(data.soundList).length; i++) {
+      bufferSourceNodes[i].start(context.currentTime + data.soundList[i].time);
+    }
+
+    // TODO: Play sounds triggered by audio, or don't...
+  }); 
+}
+
+/**
+ * In order to create audio controls, which control all sounds of the 
+ * same detected objected (independent from the time of appearance),
+ * the detected objects are grouped and their original index is saved 
+ * in a json object. 
+ * {animal: 'animal-name', node_group: #group-nr#, soundList_indices: [original-json-index]}
+ * @param {json} data json with detected objects from backend
+ * */
+function groupDetectedObjects(data) {
   nodeGroup = 0;
   for (let i = 0; i < Object.keys(data.soundList).length; i++) {
-    // check if animal is already in animalIndices array, if not add it
-    const index = animalIndices.findIndex(object => object.animal === data.soundList[i].name);
+    // check if animal is already in animalGroups array, if not add it
+    const index = animalGroups.findIndex(object => object.animal === data.soundList[i].name);
     if (index > -1) {
-      animalIndices[index].soundList_indices.push(i);
+      animalGroups[index].soundList_indices.push(i);
     } else {
-      animalIndices.push({ animal: data.soundList[i].name, node_group: nodeGroup, soundList_indices: [i] });
+      animalGroups.push({ animal: data.soundList[i].name, node_group: nodeGroup, soundList_indices: [i] });
       nodeGroup += 1;
     }
   }
-  createAudioDiv();
-  for (const element of animalIndices) {
+}
+
+/**
+ * This function creates effect Web Audio API effect nodes 
+ * for every detected node group (same objects are controlled) 
+ * by the same node group.
+ */
+function createEffectNodes(){
+  for (const element of animalGroups) {
     console.log(element);
     gainNodes[element.node_group] = context.createGain();
     gainNodes[element.node_group].gain.value = 0.5;
@@ -73,28 +100,41 @@ async function loadAudioElements(data) {
     panningNodes[element.node_group].connect(gainNodes[element.node_group]);
     gainNodes[element.node_group].connect(masterGain);
   }
-  let promises = [];
-  for (let i = 0; i < Object.keys(data.soundList).length; i++) {
-    bufferSourceNodes[i] = context.createBufferSource();
-    let index = animalIndices.findIndex(object => object.animal === data.soundList[i].name);
-    bufferSourceNodes[i].playbackRate.value = document.querySelector("#pitchOutput" + animalIndices[index].node_group).innerHTML;
-    loadWebSound(data.soundList[i].url, i);
-    bufferSourceNodes[i].connect(convolverNodes[animalIndices[index].node_group]);
-  }
-  masterGain.connect(context.destination);
-  console.log(animalIndices);
-
-  // TODO: Play sounds triggered by video time, not button click
-  document.querySelector("#playPauseButton").addEventListener("click", function (e) {
-    console.log("play audio");
-    document.getElementsByClassName("mp4-video")[0].play();
-    for (let i = 0; i < Object.keys(data.soundList).length; i++) {
-      bufferSourceNodes[i].start(context.currentTime + data.soundList[i].time);
-    }
-  }); 
 }
 
-// function that loads audio buffer data from web in the audioBuffers array
+/**
+ * This function creates the buffer source nodes, calls 
+ * 'loadWebSound' to asynchronously load the audio files 
+ * from freesound.org and connects them to the convolver
+ * nodes (first effect node).
+ * It also sets a 'played' flag in the original data, to 
+ * indicate wether a sound has been played or not.
+ * This function needs to be called again, if the sounds 
+ * need to be played again, since buffer source nodes can 
+ * be only played once. Creating new buffer source nodes 
+ * is inexpensive.
+ * @param {json} data json with detected objects from backend
+ */
+function createBufferSourceNodes(data) {
+  for (let i = 0; i < Object.keys(data.soundList).length; i++) {
+    data.soundList[i].played = false;
+    bufferSourceNodes[i] = context.createBufferSource();
+    let index = animalGroups.findIndex(object => object.animal === data.soundList[i].name);
+    bufferSourceNodes[i].playbackRate.value = document.querySelector("#pitchOutput" + animalGroups[index].node_group).innerHTML;
+    loadWebSound(data.soundList[i].url, i);
+    bufferSourceNodes[i].connect(convolverNodes[animalGroups[index].node_group]);
+  }
+}
+
+/**
+ * Sends a XMLHttpRequest to load the sound files from 
+ * a given url. Uses the corresponding index of the 
+ * original json object coming from the backend to 
+ * set the correct buffer attribute of the buffer 
+ *  source node.
+ * @param {string} url 
+ * @param {integer} i 
+ */
 function loadWebSound(url, i) {
     var request = new XMLHttpRequest();
     request.open('GET', url, true);
@@ -111,14 +151,12 @@ function loadWebSound(url, i) {
     request.send();
 }
 
-// connects an buffer from the audioBuffers array to a gain node and then to the destination, 
-// plays the sound at the given time
-function playSoundAtTime(i, time) {
-  bufferSourceNodes[i].start(context.currentTime + time);
-}
-
-//creates div elements with audio control elements, attaches event listeners to sliders
-function createAudioDiv() {
+/**
+ * Creates and appends the needed HTML elements with audio 
+ * controls, then attaches event listeners to the sliders for 
+ * effecting the corresponding Web Audio API effect nodes.
+ */
+function createAudioHtml() {
   let parentDiv = document.getElementById("audioElementsFrame");
   let master = document.createElement("div")
   master.setAttribute("class", "master")
@@ -128,7 +166,7 @@ function createAudioDiv() {
   document.querySelector("#masterSlider").addEventListener("input", function (e) {
     changeParameter(e, "0")
   });
-  for (const object of animalIndices) {
+  for (const object of animalGroups) {
     let channel = document.createElement("div")
     channel.setAttribute("class", "channel")
     channel.setAttribute("id", `channel${object.node_group}`)
@@ -150,7 +188,13 @@ function createAudioDiv() {
   }
 }
 
-// event handler for all sliders
+/**
+ * Changes the corresponding Web Audio API nodes 
+ * depending on the given node group identifier.
+ * @param {event} e event, that triggered this call. 
+ * Needed to identify the target.
+ * @param {integer} i node group identifier
+ */
 function changeParameter(e, i) {
   switch (e.target.id) {
     case "masterSlider":
@@ -175,7 +219,10 @@ function changeParameter(e, i) {
       break;
   }
 }
-// function that returns html for audio control elements
+
+/**
+ * Returns HTML code for audio control elements
+ */ 
 function returnAudioElement(name, channel) {
   return `
   <input type="checkbox" name="power" class="powerswitch" checked>
@@ -203,7 +250,53 @@ function returnAudioElement(name, channel) {
     <option value="cave">Cave</option>
     <option value="garage">Garage</option>
     <option value="room2">Room2</option>
-</select>
+  </select>
   </div>
   `
+}
+
+/**
+ * This function triggers the start of a sound with depending on 
+ * the current time of a video.
+ * It only plays sounds, that have not been played yet and therefore 
+ * sets a flag to indicate that status.
+ * @param {bufferSourceNode} buff_node Web Audio API Buffer Source Node 
+ * containing the audio buffer.
+ * @param {number} time Float indicating the time in seconds, at which 
+ * the sound should be played.
+ * @param {boolean} flag Flag indicating wether a sound has been played 
+ * or not to prevent repeated triggers.
+ * @param {html} video The html video element containing the video 
+ * source, that is responsible for triggering the sounds.
+ */
+function playSound(timecode) {
+  for (let i = 0; i <= data.soundList.length; i++) {
+    console.log("Timecode: " + timecode)
+    console.log("Audio-Time: " + data.soundList[i].time);
+    console.log("Was played: " + data.soundList[i].played);
+    if (timecode >= data.soundList[i].time && !data.soundList[i].played) {
+      console.log("Playing sound on index: " + i);
+      bufferSourceNodes[i].start();
+      data.soundList[i].played = true;
+    }
+  }
+}
+
+function stopAudioBuffers() {
+  for (const node of bufferSourceNodes) {
+    // TODO: Check if node is playing/was played to prevent console errors
+    node.stop();
+  }
+}
+
+function playSilentSound() {
+  const audioContext = new AudioContext();
+  const oscillator = audioContext.createOscillator();
+  oscillator.frequency.setValueAtTime(0, audioContext.currentTime);
+  const gainNode = audioContext.createGain();
+  gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  oscillator.start();
+  setTimeout(() => oscillator.stop(), 250);
 }

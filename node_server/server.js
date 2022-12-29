@@ -56,7 +56,7 @@ const pyPath = "/video"
  ** Server listener **
  *********************/
 const PORT = process.env.PORT || 3000;
-app.listen(3000, function() {
+app.listen(PORT, function() {
     console.log(`Server started on port ${PORT}`);
 });
 app.timeout = 120000; // 2 minutes (ms); default is 2 minutes

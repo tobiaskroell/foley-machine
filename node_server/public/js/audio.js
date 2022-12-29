@@ -3,12 +3,14 @@ var animalGroups = [];
 var bufferSourceNodes = [];
 var gainNodes = [];
 var panningNodes = [];
-var filterNodes = [];
+var lowCutNodes = [];
+var highCutNodes = [];
 var convolverBuffers = [];
 var convolverNodes = [];
+var reverbGainNodes = [];
 var masterGain;
 var data;
-let responseFiles = ["room", "church", "cave", "garage","room2"]
+let responseFiles = ["room", "church", "cave", "garage", "room2"]
 
 //function to load impulsresponse files
 function loadImpulseResponse(responseFiles) {
@@ -54,7 +56,7 @@ async function loadAudioElements(json) {
     }
 
     // TODO: Play sounds triggered by audio, or don't...
-  }); 
+  });
 }
 
 /**
@@ -84,21 +86,34 @@ function groupDetectedObjects(data) {
  * for every detected node group (same objects are controlled) 
  * by the same node group.
  */
-function createEffectNodes(){
+function createEffectNodes() {
   for (const element of animalGroups) {
-    console.log(element);
+    // create effect nodes for every node group
     gainNodes[element.node_group] = context.createGain();
     gainNodes[element.node_group].gain.value = 0.5;
-    panningNodes[element.node_group] = context.createStereoPanner();
-    panningNodes[element.node_group].pan.value = 0;
-    //filterNodes[element.node_group] = context.createBiquadFilter();
-    //filterNodes[element.node_group].type = "notch";
+    reverbGainNodes[element.node_group] = context.createGain();
+    reverbGainNodes[element.node_group].gain.value = 0.5;
     convolverNodes[element.node_group] = context.createConvolver();
     convolverNodes[element.node_group].buffer = convolverBuffers[0];
     convolverNodes[element.node_group].normalize = true;
+    highCutNodes[element.node_group] = context.createBiquadFilter();
+    highCutNodes[element.node_group].type = "highshelf";
+    highCutNodes[element.node_group].frequency.value = 8000;
+    highCutNodes[element.node_group].gain.value = 0;
+    lowCutNodes[element.node_group] = context.createBiquadFilter();
+    lowCutNodes[element.node_group].type = "lowshelf";
+    lowCutNodes[element.node_group].frequency.value = 100;
+    lowCutNodes[element.node_group].gain.value = 0;
+    panningNodes[element.node_group] = context.createStereoPanner();
+    panningNodes[element.node_group].pan.value = 0;
+    // connect effect nodes
+    gainNodes[element.node_group].connect(highCutNodes[element.node_group]);
+    highCutNodes[element.node_group].connect(lowCutNodes[element.node_group]);
+    lowCutNodes[element.node_group].connect(panningNodes[element.node_group]);
+    lowCutNodes[element.node_group].connect(reverbGainNodes[element.node_group]);
+    reverbGainNodes[element.node_group].connect(convolverNodes[element.node_group]);
     convolverNodes[element.node_group].connect(panningNodes[element.node_group]);
-    panningNodes[element.node_group].connect(gainNodes[element.node_group]);
-    gainNodes[element.node_group].connect(masterGain);
+    panningNodes[element.node_group].connect(masterGain);
   }
 }
 
@@ -122,7 +137,7 @@ function createBufferSourceNodes(data) {
     let index = animalGroups.findIndex(object => object.animal === data.soundList[i].name);
     bufferSourceNodes[i].playbackRate.value = document.querySelector("#pitchOutput" + animalGroups[index].node_group).innerHTML;
     loadWebSound(data.soundList[i].url, i);
-    bufferSourceNodes[i].connect(convolverNodes[animalGroups[index].node_group]);
+    bufferSourceNodes[i].connect(gainNodes[animalGroups[index].node_group]);
   }
 }
 
@@ -136,19 +151,19 @@ function createBufferSourceNodes(data) {
  * @param {integer} i 
  */
 function loadWebSound(url, i) {
-    var request = new XMLHttpRequest();
-    request.open('GET', url, true);
-    request.responseType = 'arraybuffer';
-    // Decode asynchronously
-    request.onload = function () {
-        context.decodeAudioData(request.response, function (buffer) {
-          bufferSourceNodes[i].buffer = buffer;
-        });
-      }
-    request.onerror = function () {
-      console.error('An error occurred while loading the audio file');
-    };
-    request.send();
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.responseType = 'arraybuffer';
+  // Decode asynchronously
+  request.onload = function () {
+    context.decodeAudioData(request.response, function (buffer) {
+      bufferSourceNodes[i].buffer = buffer;
+    });
+  }
+  request.onerror = function () {
+    console.error('An error occurred while loading the audio file');
+  };
+  request.send();
 }
 
 /**
@@ -185,6 +200,18 @@ function createAudioHtml() {
     document.querySelector("#selectList" + object.node_group).addEventListener("change", function (event) {
       changeParameter(event, object.node_group)
     });
+    document.querySelector("#reverbSlider" + object.node_group).addEventListener("input", function (event) {
+      changeParameter(event, object.node_group)
+    });
+    document.querySelector("#powerSwitch" + object.node_group).addEventListener("click", function (event) {
+      changeParameter(event, object.node_group)
+    });
+    document.querySelector("#lowCutSwitch" + object.node_group).addEventListener("click", function (event) {
+      changeParameter(event, object.node_group)
+    });
+    document.querySelector("#highCutSwitch" + object.node_group).addEventListener("click", function (event) {
+      changeParameter(event, object.node_group)
+    });
   }
 }
 
@@ -217,15 +244,36 @@ function changeParameter(e, i) {
     case "selectList" + i:
       convolverNodes[i].buffer = convolverBuffers[e.target.selectedIndex];
       break;
+    case "reverbSlider" + i:
+      document.querySelector("#reverbOutput" + i).innerHTML = (e.target.value / 100) + " ";
+      reverbGainNodes[i].gain.value = e.target.value / 100;
+      break;
+    case "powerSwitch" + i:
+      document.querySelector("#powerSwitch" + i).checked ?
+        gainNodes[i].gain.value = document.querySelector("#volumeSlider" + i).value / 100 :
+        gainNodes[i].gain.value = 0;
+      break;
+    case "lowCutSwitch" + i:
+      document.querySelector("#lowCutSwitch" + i).checked ?
+        lowCutNodes[i].gain.value = -80 :
+        lowCutNodes[i].gain.value = 0;
+      console.log("low cut on")
+      break;
+    case "highCutSwitch" + i:
+      document.querySelector("#highCutSwitch" + i).checked ?
+        highCutNodes[i].gain.value = -80 :
+        highCutNodes[i].gain.value = 0;
+      console.log("low cut on")
+      break;
   }
 }
 
 /**
  * Returns HTML code for audio control elements
- */ 
+ */
 function returnAudioElement(name, channel) {
   return `
-  <input type="checkbox" name="power" class="powerswitch" checked>
+  <input type="checkbox" name="power" id="powerSwitch${channel}" class="powerswitch" checked>
   <h3 class="channelTitle">${name}</h3>
   <div>
     <label for="volume">Volume</label>
@@ -252,6 +300,18 @@ function returnAudioElement(name, channel) {
     <option value="room2">Room2</option>
   </select>
   </div>
+  <div>
+  <label for="reverb">Reverb Amount</label>
+  <input class="slider" type="range" id="reverbSlider${channel}" name="reverb" min="0" max="100" value="0">
+  <p id="reverbOutput${channel}"> 0 </p>
+  </div>
+  <div>
+  <label for="eq">EQ</label>
+  <p>Low Cut</p>
+  <input type="checkbox" name="lowCut" id="lowCutSwitch${channel}" class="powerswitch" unchecked>
+  <p>High Cut</p>
+  <input type="checkbox" name="highCut" id="highCutSwitch${channel}" class="powerswitch" unchecked>
+  <div>
   `
 }
 

@@ -47,6 +47,7 @@ from utils.torch_utils import select_device, smart_inference_mode
 from utils.plots import Annotator, colors, save_one_box
 from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
                            increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
+from utils.dataloaders import get_framecount
 
 @smart_inference_mode()
 def run(
@@ -117,7 +118,7 @@ def run(
     }
     detections_dict = {}
     detections_dict['detections'] = []
-    
+
     if is_url and is_file:
         source = check_file(source)  # download
 
@@ -171,14 +172,12 @@ def run(
         # Process predictions
 
         for i, det in enumerate(pred):  # per image
-            
             seen += 1
             if webcam:  # batch_size >= 1
                 p, im0, frame = path[i], im0s[i].copy(), dataset.count
                 s += f'{i}: '
             else:
                 p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
-
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name)  # im.jpg
             txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
@@ -196,7 +195,6 @@ def run(
                     count+=1
                     n = (det[:, 5] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}, "  # add detection class to string (cat, dog, ...)
-
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
                     if save_txt:  # Write to file
@@ -211,10 +209,13 @@ def run(
                         annotator.box_label(xyxy, label, color=colors(c, True))
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
-
+            
             #################################
             # @author: Kevin
             # Add detections to dict
+
+            print('Framecount:', get_framecount())
+            pdb.set_trace()
             if webcam:
                 detected_frame = frame + 1
             else:

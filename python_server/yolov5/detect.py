@@ -214,16 +214,19 @@ def run(
             # @author: Kevin
             # Add detections to dict
 
-            print('Framecount:', get_framecount())
-            pdb.set_trace()
             if webcam:
                 detected_frame = frame + 1
-            else:
+
+            if source.endswith('.mp4'):
+                # pdb.set_trace()
                 detected_frame = int(re.findall('\((.+?)\/', s)[0])  # get frame number
-                detections_in_frame = re.findall('(?<=384x640|640x384).*$', s)[0]  # get detection string
+                detections_in_frame = re.findall('(?<=\d{3}x\d{3}).*$', s)[0]  # get detection string
                 detections_in_frame = detections_in_frame.split(',')  # split into list
                 detections_in_frame = list(map(lambda x: x.strip(), detections_in_frame))  # remove whitespace
                 detections_in_frame = [x for x in detections_in_frame if x]  # remove empty strings
+
+            else:
+                pass
 
             # Append frame number to dict
             if len(detections_in_frame) > 0:

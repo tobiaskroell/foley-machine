@@ -18,7 +18,7 @@ app.use(fileUpload({
     fileSize: fileSizeLimit,    // file size limit in bytes
     files: 1                    // file limit in multipart forms
   },
-  debug: true,              // show debug messages
+  debug: false,            // show debug messages
   safeFileNames: true,      // strips non-alphanumeric chars except dashes & underscores
   preserveExtension: true,  // preserves file extension, when using safeFileNames (default 3 chars)
   abortOnLimit: true,       // Returns HTTP 413 when size limit is reached
@@ -46,20 +46,23 @@ const { animalList } = require('./animals.js');
 
 const secret = require('./secret.js');
 
-/***********
- ** Hosts **
- ***********/
-const pyServer = 'http://127.0.0.1:8000';
-const pyPath = "/video"
 
 /*********************
  ** Server listener **
  *********************/
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, function() {
-    console.log(`Server started on port ${PORT}`);
+  console.log(`Server started on port ${PORT}`);
 });
 app.timeout = 120000; // 2 minutes (ms); default is 2 minutes
+
+/***********
+ ** Hosts **
+ ***********/
+const pyProduction = 'http://3.122.106.66/';
+const pyLocal = 'http://127.0.0.1:8000';
+const pyServer = PORT == 3000 ? pyLocal : pyProduction;
+const pyPath = "/video"
 
 // Serving static files
 app.use(express.static(__dirname + '/public'));
@@ -77,7 +80,9 @@ app.post('/upload', async (req, res) => {
   const link = req.body.link != undefined ? req.body.link : false;
   const file = req.files ? req.files.file : false;
   let filename, filepath, fps, duration, frameCount;
+  let detections = [];
 
+  // Check file and get video info
   new Promise(async (resolve, reject) => {
     if (file != false) {
       // Read file and check for mp4
@@ -117,7 +122,9 @@ app.post('/upload', async (req, res) => {
         });
       });
     }
-  }).then(async () => {
+  })
+
+  .then(async () => {
     // Create JSON object
     const data = { "filepath": filepath };
   
@@ -127,79 +134,125 @@ app.post('/upload', async (req, res) => {
         await post(pyServer + pyPath, data).then((res) => {
           pythonPostResponse = JSON.parse(res);
           console.log(typeof(pythonPostResponse));
-          const detections = pythonPostResponse.data.detections;
+          detections = pythonPostResponse.data.detections;
           resolve(detections);
         });
       } catch (err) {
         console.log(err);
         return res.status(502).send('Bad Gateway:\nPython-Server not responding. Please try again!');
       }
-    }).then(async (detections) => {
+    })
+    
+    .then(async () => {
       // API Calls
       const promises = [];                        // Array for collecting promises to wait for
-      const audioJson = {"soundList":[]};
+      const audioJson = {"soundList":[]};         // JSON object for audio files
+      let apiCallCounter = 0;                     // Keep track of API calls due to limited requests
+      const apiCallLimit = 60;                    // Max number of API calls per minute
+      const animalSet = new Set();                // Set for unique animals
+      const apiCache = {};                        // Cache for API calls to avoid multiple requests for same animal
+      let maxDiffSounds = 3;                      // Max number of different sounds per animal
+
+
       for (let detection of detections) {         // for every detection object
         for (let frame in detection) {            // for every frame
-          for (let object of detection[frame]) {  // for every animal
-            const query = object.object;
-            if (animalList.includes(query)) {
-              const filter = "duration:%5B1%20TO%206%5D"  // URL encoded: 'duration:[1 TO 6]' (seconds)
-              console.log("Frame: " + frame + " | Count: " + object.count + " | Query: " + query);
-              try {
-                await fetch(`https://freesound.org/apiv2/search/text/?query=${query}&filter=${filter}&token=${secret.freesound}`).then((res) => {
-                  if (res.status == 200) {
-                    promises.push(new Promise((resolve, reject) => {
-                      res.json().then((json) => {
-                        // TODO: Check if json response not empty
-                        // Collect ids for query-matching sounds
-                        for (let i = 0; i < object.count; i++) {
-                          // Reset 'i' if there are no more results
-                          if (json.results.length < object.count && i + 1 == json.results.length) { i = 0 }
-                          audioJson.soundList.push({"id": json.results[i].id, "name": query, "time": frame/fps, "url": null});
-                          // TODO: Calculate fps from python response on youtube videos
-                        }
-                        resolve("success");
-                      });
-                    }));
-                  } else {
-                    console.error("Response Status: " + res.status);
-                    return res.status(502).send('Bad Gateway:\nFreesound-API not responding. Please try again!');
-                  }
-                });
-              } catch (e) {
-                console.error(e);
-                return res.status(502).send('Bad Gateway:\nFreesound-API not responding. Please try again!');
-              }
+          for (let object of detection[frame]) {  // for every animal in frame
+            const thing = object.object;
+            console.log("Frame: " + frame + " | Count: " + object.count + " | Query: " + thing);
+            if (animalList.includes(thing)) {
+              animalSet.add(thing);               // add animal to set if included in filter list
             }
           }
         }
       }
+
+      for (let animal of animalSet) {
+        if (apiCallCounter >= apiCallLimit) { break; }
+        apiCache[animal] = [];
+        const filter = "duration:%5B1%20TO%206%5D"  // URL encoded: 'duration:[1 TO 6]' (seconds)
+
+        try {
+          await fetch(`https://freesound.org/apiv2/search/text/?query=${animal}&filter=${filter}&token=${secret.freesound}`).then((response) => {
+            if (response.status == 200) {
+              promises.push(new Promise((resolve, reject) => {
+                response.json().then((json) => {
+                  // Collect ids for query-matching sounds
+                  for (let i = 0; i < maxDiffSounds; i++) {
+                    // Abort if no more sounds available
+                    if (json.results.length < i + 1) { break; }
+                    apiCache[animal].push({"id": json.results[i].id, "url": null}); // Add id to apiCache
+                  }
+                  resolve("success");
+                });
+              }));
+            } else if (response.status == 429) {
+              console.error("Response Status: " + response.status);
+              return res.status(429).send('Too many requests:\nFreesound-API has limited requests to 60 per minute. Please try again later!');
+            } else {
+              console.error("Response Status: " + response.status);
+              return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
+            }  
+          });
+        } catch (e) {
+          console.error(e);
+          return res.status(502).send('Bad Gateway:\nFreesound-API not responding. Please try again!');
+        }
+
+        apiCallCounter++;
+      }
+
+            
       // Collect preview mp3 urls, when all promises have been resolved
       Promise.all(promises).then(async () => {
-        console.log(audioJson);
         promises.length = 0;
-        for (let sound of audioJson.soundList) {
-          try {
-            await fetch(`https://freesound.org/apiv2/sounds/${sound.id}/?token=${secret.freesound}`).then((res) => {
-              if (res.status == 200) {
-                promises.push(new Promise((resolve, reject) => {
-                  res.json().then((json) => {
-                    sound.url = json.previews["preview-lq-mp3"]; // Low quality mp3
-                    resolve("success");
-                  });
-                }));  
-              } else {
-                console.error("Response Status: " + res.status);
-                return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
-              }  
-            });
-          } catch (e) {
-            console.error(e);
-            return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
+        for (let animal in apiCache) {
+          if (apiCallCounter >= apiCallLimit) { break; }
+          for (let soundObject of apiCache[animal]) {
+            if (apiCallCounter >= apiCallLimit) { break; }
+            try {
+              await fetch(`https://freesound.org/apiv2/sounds/${soundObject.id}/?token=${secret.freesound}`).then((response) => {
+                if (response.status == 200) {
+                  promises.push(new Promise((resolve, reject) => {
+                    response.json().then((json) => {
+                      soundObject.url = json.previews["preview-lq-mp3"]; // Low quality mp3
+                      resolve(detections);
+                    });
+                  }));  
+                } else if (res.status == 429) {
+                  console.error("Response Status: " + response.status);
+                  return res.status(429).send('Too many requests:\nFreesound-API has limited requests to 60 per minute. Please try again later!');
+                } else {
+                  console.error("Response Status: " + response.status);
+                  return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
+                }  
+              });
+            } catch (e) {
+              console.error(e);
+              return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
+            }
+
+            apiCallCounter++;
           }
         }
-        Promise.all(promises).then((resolveValues) => {
+        
+        Promise.all(promises).then(() => {
+          console.log(apiCache);
           audioJson.filename = filename; // ATTENTION: filename needs to be included in the response!
+          // Build audioJson from apiCache
+          for (let frameDetection of detections) {         // for every detection object
+            for (let frame in frameDetection) {            // for every frame
+              console.log("Frame: " + frame);
+              let counter = 0;                        // used to count sounds from apiCache
+              for (let entry of frameDetection[frame]) {  // for every animal
+                const animal = entry.object;
+                if (animalList.includes(animal)) {
+                  audioJson.soundList.push({"id": apiCache[animal][counter].id, "name": animal, "time": frame/fps, "url": apiCache[animal][counter].url});
+                  counter++;
+                }
+                if (counter >= maxDiffSounds) { counter = 0; }
+              }
+            }
+          }
           console.log(audioJson);
           res.send(audioJson);
         });

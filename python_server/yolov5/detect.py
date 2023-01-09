@@ -344,7 +344,7 @@ def main(opt):
     run(**vars(opt))
 
 
-def detect_objects(source, conf_thres):
+def detect_objects(source, conf_thres, vid_stride):
     """
     @author: Kevin\n
     Modified main function to run the model with static parameters.
@@ -361,7 +361,7 @@ def detect_objects(source, conf_thres):
             weights='yolov5s.pt',
             conf_thres=conf_thres, # confidence threshold
             device='0',
-            vid_stride=150,
+            vid_stride=vid_stride,
             nosave=True,
             save_txt=True,
             project='runs/detect',

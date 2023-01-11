@@ -645,6 +645,20 @@ input.powerswitch {
     box-shadow: -2px 4px 3px rgba(0,0,0,0.05);
   }
 
+  input.input-switch {
+
+    width: 50px;
+    height: 50px;
+    background-color: #93939350;
+    transition-duration: 200ms;
+    border-radius: 20px;
+    border: "transparent";
+  }
+  input.input-switch:checked{
+
+    background-color: #00ff6e50;
+  }
+
 /* Video-Elements */
 .output_video {
   display: flex;

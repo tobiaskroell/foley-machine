@@ -13,6 +13,9 @@ var reverbGainNodes = [];
 var masterGain;
 var data;
 let responseFiles = ["room", "church", "cave", "garage", "room2"]
+var knobBgColor = "#606060";
+var knobFgColor = "#00BB20";
+var knobDiameter = 32;
 
 //function to load impulsresponse files
 function loadImpulseResponse(responseFiles) {
@@ -303,17 +306,17 @@ function returnAudioElement(name, channel) {
   <h3 class="channelTitle">${name}</h3>
   <div>
     <label for="volume">Volume</label>
-    <input class="slider" type="range" id="volumeSlider${channel}" name="volume" min="0" max="100" value="50">
+    <input class="input-knob" type="range" knobDiameter:${knobDiameter} data-bgcolor=${knobBgColor} data-fgcolor=${knobFgColor} id="volumeSlider${channel}" name="volume" min="0" max="100" value="50">
     <p id="volumeOutput${channel}"> 50 </p>
   </div>
   <div>
     <label for="pan">Pan</label>
-    <input class="slider" type="range" id="panningSlider${channel}" name="pan" min="-100" max="100" value="0">
+    <input class="input-knob" type="range" knobDiameter:${knobDiameter} data-bgcolor=${knobBgColor} data-fgcolor=${knobFgColor} id="panningSlider${channel}" name="pan" min="-100" max="100" value="0">
     <p id="panningOutput${channel}"> 0 </p>
   </div>
   <div>
   <label for="pitch">Pitch</label>
-  <input class="slider" type="range" id="pitchSlider${channel}" name="pitch" min="0" max="200" value="100">
+  <input class="input-knob" type="range" knobDiameter:${knobDiameter} data-bgcolor=${knobBgColor} data-fgcolor=${knobFgColor} id="pitchSlider${channel}" name="pitch" min="0" max="200" value="100">
   <p id="pitchOutput${channel}"> 1 </p>
   </div>
   <div>
@@ -328,19 +331,19 @@ function returnAudioElement(name, channel) {
   </div>
   <div>
   <label for="reverb">Reverb Amount</label>
-  <input class="slider" type="range" id="reverbSlider${channel}" name="reverb" min="0" max="100" value="0">
+  <input class="input-knob" type="range" knobDiameter:${knobDiameter} data-bgcolor=${knobBgColor} data-fgcolor=${knobFgColor} id="reverbSlider${channel}" name="reverb" min="0" max="100" value="0">
   <p id="reverbOutput${channel}"> 0 </p>
   </div>
   <div>
   <label for="eq">EQ</label>
   <p>Low Shelf</p>
-  <input type="checkbox" name="lowShelf" id="lowShelfSwitch${channel}" class="powerswitch" unchecked>
+  <input type="checkbox" name="lowShelf" id="lowShelfSwitch${channel}" class="input-switch" data-src="./img/lowShelf.png" data-diameter="30" unchecked>
   <p>High Shelf</p>
-  <input type="checkbox" name="highShelf" id="highShelfSwitch${channel}" class="powerswitch" unchecked>  
+  <input type="checkbox" name="highShelf" id="highShelfSwitch${channel}" class="input-switch" data-src="./img/highShelf.png" data-diameter="30" unchecked>  
   <p>Low Cut</p>
-  <input type="checkbox" name="lowCut" id="lowCutSwitch${channel}" class="powerswitch" unchecked>
+  <input type="checkbox" name="lowCut" id="lowCutSwitch${channel}" class="input-switch" data-src="./img/lowCut.png" data-diameter="30" unchecked>
   <p>High Cut</p>
-  <input type="checkbox" name="highCut" id="highCutSwitch${channel}" class="powerswitch" unchecked>
+  <input type="checkbox" name="highCut" id="highCutSwitch${channel}" class="input-switch" data-src="./img/highCut.png" data-diameter="30" unchecked>
   <div>
   `
 }

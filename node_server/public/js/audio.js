@@ -5,6 +5,8 @@ var gainNodes = [];
 var panningNodes = [];
 var lowCutNodes = [];
 var highCutNodes = [];
+var lowShelfNodes = [];
+var highShelfNodes = [];
 var convolverBuffers = [];
 var convolverNodes = [];
 var reverbGainNodes = [];
@@ -104,10 +106,20 @@ function createEffectNodes() {
     lowCutNodes[element.node_group].type = "lowshelf";
     lowCutNodes[element.node_group].frequency.value = 100;
     lowCutNodes[element.node_group].gain.value = 0;
+    highShelfNodes[element.node_group] = context.createBiquadFilter();
+    highShelfNodes[element.node_group].type = "highshelf";
+    highShelfNodes[element.node_group].frequency.value = 8000;
+    highShelfNodes[element.node_group].gain.value = 0;
+    lowShelfNodes[element.node_group] = context.createBiquadFilter();
+    lowShelfNodes[element.node_group].type = "lowshelf";
+    lowShelfNodes[element.node_group].frequency.value = 100;
+    lowShelfNodes[element.node_group].gain.value = 0;
     panningNodes[element.node_group] = context.createStereoPanner();
     panningNodes[element.node_group].pan.value = 0;
     // connect effect nodes
-    gainNodes[element.node_group].connect(highCutNodes[element.node_group]);
+    gainNodes[element.node_group].connect(highShelfNodes[element.node_group]);
+    highShelfNodes[element.node_group].connect(lowShelfNodes[element.node_group]);
+    lowShelfNodes[element.node_group].connect(highCutNodes[element.node_group]);
     highCutNodes[element.node_group].connect(lowCutNodes[element.node_group]);
     lowCutNodes[element.node_group].connect(panningNodes[element.node_group]);
     lowCutNodes[element.node_group].connect(reverbGainNodes[element.node_group]);
@@ -212,6 +224,12 @@ function createAudioHtml() {
     document.querySelector("#highCutSwitch" + object.node_group).addEventListener("click", function (event) {
       changeParameter(event, object.node_group)
     });
+    document.querySelector("#lowShelfSwitch" + object.node_group).addEventListener("click", function (event) {
+      changeParameter(event, object.node_group)
+    });
+    document.querySelector("#highShelfSwitch" + object.node_group).addEventListener("click", function (event) {
+      changeParameter(event, object.node_group)
+    });
   }
 }
 
@@ -257,14 +275,22 @@ function changeParameter(e, i) {
       document.querySelector("#lowCutSwitch" + i).checked ?
         lowCutNodes[i].gain.value = -80 :
         lowCutNodes[i].gain.value = 0;
-      console.log("low cut on")
       break;
     case "highCutSwitch" + i:
       document.querySelector("#highCutSwitch" + i).checked ?
         highCutNodes[i].gain.value = -80 :
         highCutNodes[i].gain.value = 0;
-      console.log("low cut on")
       break;
+      case "lowShelfSwitch" + i:
+        document.querySelector("#lowShelfSwitch" + i).checked ?
+          lowShelfNodes[i].gain.value = 30 :
+          lowShelfNodes[i].gain.value = 0;
+        break;
+      case "highShelfSwitch" + i:
+        document.querySelector("#highShelfSwitch" + i).checked ?
+          highShelfNodes[i].gain.value = 30 :
+          highShelfNodes[i].gain.value = 0;
+        break;
   }
 }
 
@@ -307,6 +333,10 @@ function returnAudioElement(name, channel) {
   </div>
   <div>
   <label for="eq">EQ</label>
+  <p>Low Shelf</p>
+  <input type="checkbox" name="lowShelf" id="lowShelfSwitch${channel}" class="powerswitch" unchecked>
+  <p>High Shelf</p>
+  <input type="checkbox" name="highShelf" id="highShelfSwitch${channel}" class="powerswitch" unchecked>  
   <p>Low Cut</p>
   <input type="checkbox" name="lowCut" id="lowCutSwitch${channel}" class="powerswitch" unchecked>
   <p>High Cut</p>

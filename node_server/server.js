@@ -185,17 +185,19 @@ app.post('/upload', async (req, res) => {
                   resolve("success");
                 });
               }));
-            } else if (response.status == 429) {
-              console.error("Response Status: " + response.status);
-              return res.status(429).send('Too many requests:\nFreesound-API has limited requests to 60 per minute. Please try again later!');
             } else {
-              console.error("Response Status: " + response.status);
-              return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
-            }  
+              throw response.status;
+            }
           });
         } catch (e) {
           console.error(e);
-          return res.status(502).send('Bad Gateway:\nFreesound-API not responding. Please try again!');
+          if (e == 429) {
+            console.error("Response Status: " + e);
+            return res.status(429).send('Too many requests:\nFreesound-API has limited requests to 60 per minute. Please try again later!');
+          } else {
+            console.error("Response Status: " + e);
+            return res.status(502).send('Bad Gateway:\nFreesound-API not responding. Please try again!');
+          }
         }
 
         apiCallCounter++;
@@ -218,17 +220,19 @@ app.post('/upload', async (req, res) => {
                       resolve(detections);
                     });
                   }));  
-                } else if (res.status == 429) {
-                  console.error("Response Status: " + response.status);
-                  return res.status(429).send('Too many requests:\nFreesound-API has limited requests to 60 per minute. Please try again later!');
                 } else {
-                  console.error("Response Status: " + response.status);
-                  return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
-                }  
+                  throw response.status;
+                }
               });
             } catch (e) {
               console.error(e);
-              return res.status(502).send('Bad Gateway:\nFreesound-API not responding with URLs. Please try again!');
+              if (e == 429) {
+                console.error("Response Status: " + e);
+                return res.status(429).send('Too many requests:\nFreesound-API has limited requests to 60 per minute. Please try again later!');
+              } else {
+                console.error("Response Status: " + e);
+                return res.status(502).send('Bad Gateway:\nFreesound-API not responding. Please try again!');
+              }
             }
 
             apiCallCounter++;

@@ -59,7 +59,7 @@ app.timeout = 120000; // 2 minutes (ms); default is 2 minutes
 /***********
  ** Hosts **
  ***********/
-const pyProduction = 'http://3.122.106.66/';
+const pyProduction = 'http://3.122.106.66';
 const pyLocal = 'http://127.0.0.1:8000';
 const pyServer = PORT == 3000 ? pyLocal : pyProduction;
 const pyPath = "/video"

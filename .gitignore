@@ -279,3 +279,6 @@ video/
 .gitsecret/keys/random_seed
 !*.secret
 node_server/secret.js
+
+# Ignore PM2 Config
+ecosystem.config.js

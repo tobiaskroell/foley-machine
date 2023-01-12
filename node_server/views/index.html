@@ -39,6 +39,11 @@
             </form>
             <!-- Output Area -->
             <div class="output hidden">
+                <div class="master" id="master">
+                    <label for="volume">Master Volume</label>
+                    <input class="input-knob" type="range" knobDiameter="45" data-bgcolor="#ffffff" data-fgcolor="#ffffff" id="masterSlider" name="master" min="0" max="100" value="50">
+                    <p id="masterOutput">50</p>
+                </div>
                 <!-- Video output area -->
                 <div class="output_video"> 
                     <div class="mp4-container hidden">
@@ -74,11 +79,11 @@
             <!-- Info Collapsible -->
             <ul>
                 <li>
-                    <input type="checkbox" checked>
+                    <input type="checkbox">
                     <i></i>
                     <h2>How it works</h2>
                     <p>
-                        This page is served by a node.js webserver, which is also responsible for temporarily 
+                        <b>This page</b> is served by a node.js webserver, which is also responsible for temporarily 
                         storing your video on its disk when you upload something.
                         It then tells another server, which is runned by python, where to find your video.<br>
                         On the Python server, there is running a programm using a pre-trained machine learning 
@@ -86,14 +91,14 @@
                         and analyzing the video frames, the Python server then sends back the information 
                         about what animals have been detected to the node.js webserver.  
                         <br><br>
-                        Using this information, the webserver is now calling the API (Application Programming 
+                        <b>Using this information,</b> the webserver is now calling the API (Application Programming 
                         Interface) of freesound.org, which is a huge collaborative database of audio files, 
                         released under Creative Commons licenses.<br>
                         Communicating with that API results in a list of audio files, which are then handed 
                         over to the page you are looking at to create audio controls streaming the audio 
                         directly from the freesound servers.<br>
                         <br><br>              
-                        For ensuring that the sounds only play at a time corresponding to the actual animals 
+                        <b>For ensuring</b> that the sounds only play at a time corresponding to the actual animals 
                         seen in the video content, we use timestamps. To manipulate these files with the 
                         controls while playing, we make use of the Web Audio API - a powerful and versatile 
                         system for controlling audio on the Web.  

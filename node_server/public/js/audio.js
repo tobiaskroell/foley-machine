@@ -13,8 +13,8 @@ var reverbGainNodes = [];
 var masterGain;
 var data;
 let responseFiles = ["room", "church", "cave", "garage", "room2"]
-var knobBgColor = "#606060";
-var knobFgColor = "#00BB20";
+var knobBgColor = "#7FB069";
+var knobFgColor = "#7FB069";
 var knobDiameter = 32;
 
 //function to load impulsresponse files
@@ -188,11 +188,19 @@ function loadWebSound(url, i) {
  */
 function createAudioHtml() {
   let parentDiv = document.getElementById("audioElementsFrame");
-  let master = document.createElement("div")
+ /*  let master = document.createElement("div")
   master.setAttribute("class", "master")
   master.setAttribute("id", `master`)
-  master.innerHTML = '<div><label for="volume">Master Volume</label><input class="slider" type="range" id="masterSlider" name="master" min="0" max="100" value="50"><p id="masterOutput"> 50 </p></div>'
-  parentDiv.appendChild(master)
+  master.innerHTML = `
+  <div class="master" id="master">
+    <div>
+      <label for="volume">Master Volume</label>
+      <!-- <input class="slider" type="range" id="masterSlider" name="master" min="0" max="100" value="50"> -->
+      <input class="input-knob" type="range" knobDiameter:45 data-bgcolor=${knobBgColor} data-fgcolor=${knobFgColor} id="masterSlider" name="master" min="0" max="100" value="50">
+      <p id="masterOutput"> 50 </p>
+    </div>
+  </div>`
+  parentDiv.appendChild(master) */
   document.querySelector("#masterSlider").addEventListener("input", function (e) {
     changeParameter(e, "0")
   });
@@ -315,36 +323,46 @@ function returnAudioElement(name, channel) {
     <p id="panningOutput${channel}"> 0 </p>
   </div>
   <div>
-  <label for="pitch">Pitch</label>
-  <input class="input-knob" type="range" knobDiameter:${knobDiameter} data-bgcolor=${knobBgColor} data-fgcolor=${knobFgColor} id="pitchSlider${channel}" name="pitch" min="0" max="200" value="100">
-  <p id="pitchOutput${channel}"> 1 </p>
+    <label for="pitch">Pitch</label>
+    <input class="input-knob" type="range" knobDiameter:${knobDiameter} data-bgcolor=${knobBgColor} data-fgcolor=${knobFgColor} id="pitchSlider${channel}" name="pitch" min="0" max="200" value="100">
+    <p id="pitchOutput${channel}"> 1 </p>
   </div>
   <div>
-  <label for="pitch">Reverb</label>
-  <select id="selectList${channel}">
-    <option value="room">Room</option>
-    <option value="church">Church</option>
-    <option value="cave">Cave</option>
-    <option value="garage">Garage</option>
-    <option value="room2">Room2</option>
-  </select>
-  </div>
-  <div>
-  <label for="reverb">Reverb Amount</label>
+  <label for="reverb">Reverb</label>
   <input class="input-knob" type="range" knobDiameter:${knobDiameter} data-bgcolor=${knobBgColor} data-fgcolor=${knobFgColor} id="reverbSlider${channel}" name="reverb" min="0" max="100" value="0">
   <p id="reverbOutput${channel}"> 0 </p>
   </div>
   <div>
-  <label for="eq">EQ</label>
-  <p>Low Shelf</p>
-  <input type="checkbox" name="lowShelf" id="lowShelfSwitch${channel}" class="input-switch" data-src="./img/lowShelf.png" data-diameter="30" unchecked>
-  <p>High Shelf</p>
-  <input type="checkbox" name="highShelf" id="highShelfSwitch${channel}" class="input-switch" data-src="./img/highShelf.png" data-diameter="30" unchecked>  
-  <p>Low Cut</p>
-  <input type="checkbox" name="lowCut" id="lowCutSwitch${channel}" class="input-switch" data-src="./img/lowCut.png" data-diameter="30" unchecked>
-  <p>High Cut</p>
-  <input type="checkbox" name="highCut" id="highCutSwitch${channel}" class="input-switch" data-src="./img/highCut.png" data-diameter="30" unchecked>
-  <div>
+    <label for="pitch">Reverb</label>
+    <div class="select">
+      <select id="selectList${channel}">
+        <option value="room">Room</option>
+        <option value="room2">Room2</option>
+        <option value="church">Church</option>
+        <option value="cave">Cave</option>
+        <option value="garage">Garage</option>
+      </select>
+    </div>
+  </div>
+  <div class="eqSection">
+    <label for="eq">EQ</label>
+    <div>
+      <p>Low Shelf</p>
+      <input type="checkbox" name="lowShelf" id="lowShelfSwitch${channel}" class="eq-switch" data-src="./img/lowShelf.png" data-diameter="30" unchecked>
+    </div>
+    <div>
+      <p>High Shelf</p>
+      <input type="checkbox" name="highShelf" id="highShelfSwitch${channel}" class="eq-switch" data-src="./img/highShelf.png" data-diameter="30" unchecked>  
+    </div>
+    <div>
+      <p>Low Cut</p>
+      <input type="checkbox" name="lowCut" id="lowCutSwitch${channel}" class="eq-switch" data-src="./img/lowCut.png" data-diameter="30" unchecked>
+    </div>
+    <div>
+      <p>High Cut</p>
+      <input type="checkbox" name="highCut" id="highCutSwitch${channel}" class="eq-switch" data-src="./img/highCut.png" data-diameter="30" unchecked>
+    </div>
+  </div>
   `
 }
 

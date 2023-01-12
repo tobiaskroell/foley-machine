@@ -360,7 +360,7 @@ def detect_objects(source, conf_thres, vid_stride):
             source=f'{source}',
             weights='yolov5s.pt',
             conf_thres=conf_thres, # confidence threshold
-            device='0',
+            device='cpu',
             vid_stride=vid_stride,
             nosave=True,
             save_txt=True,

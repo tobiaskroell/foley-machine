@@ -7,7 +7,7 @@ app = FastAPI()
 
 from yolov5 import detect
 
-@app.post("/video")
+@app.post("/process")
 async def video(req_body: Request):
     data = await req_body.json()
     filepath = data['filepath']

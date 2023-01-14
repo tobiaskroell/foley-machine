@@ -114,6 +114,13 @@ To install them, follow these two steps:
    choose an installation that is suitable for your system. For 
    installation on AWS (Linux) install with the following command:
    pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+
+AWS
+1. cd avprg-project/python_server/
+2. tmux new-session -s python-server
+3. uvicorn main:app --host localhost --port 8000
+4. ctrl+b, d
+
    
 ```
 

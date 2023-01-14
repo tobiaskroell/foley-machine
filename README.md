@@ -3,13 +3,13 @@
 ## **Table of contents**
 
 - [Installation](https://github.com/KevinKroell/avprg-project#installation)  
-  - [Node server](https://github.com/KevinKroell/avprg-project#node-server)
-    - [Installing Node.js](https://github.com/KevinKroell/avprg-project#installing-nodejs)
+  - [Node Server](https://github.com/KevinKroell/avprg-project#node-server)
+    - [Node.js](https://github.com/KevinKroell/avprg-project#applying-changes)
     - [*Optional:* Installing NVM](https://github.com/KevinKroell/avprg-project#optional-installing-nvm-node-version-manager)
     - [Using NVM](https://github.com/KevinKroell/avprg-project#using-nvm)
     - [Installing dependencies](https://github.com/KevinKroell/avprg-project#installing-dependencies)
   - [Python server](https://github.com/KevinKroell/avprg-project#python-server)
-  - [Decrypt API-Token](https://github.com/KevinKroell/avprg-project#decrypt-api-token) 
+  - [Decrypt API-Tokens](https://github.com/KevinKroell/avprg-project#decrypt-api-tokens) 
     - [Setup git-secret](https://github.com/KevinKroell/avprg-project#setup-git-secret)
     - [(Re)-Encrypt Files](https://github.com/KevinKroell/avprg-project#re-encrypt-files)
 - [Run locally](https://github.com/KevinKroell/avprg-project#run-locally)
@@ -25,9 +25,10 @@
     - [Uvicorn (Python)](https://github.com/KevinKroell/avprg-project#uvicorn-python)
   - [Typical Workflow](https://github.com/KevinKroell/avprg-project#typical-workflow)
     - [Startup](https://github.com/KevinKroell/avprg-project#startup)
-    - [Making Changes](https://github.com/KevinKroell/avprg-project#making-changes)
+    - [Applying Changes](https://github.com/KevinKroell/avprg-project#applying-changes)
 - [API Reference](https://github.com/KevinKroell/avprg-project#api-reference)
-  - [Send video to Python server](https://github.com/KevinKroell/avprg-project#send-video-to-python-server)
+  - [Upload video to node](https://github.com/KevinKroell/avprg-project#upload-video-to-node)
+  - [Hand video to Python server](https://github.com/KevinKroell/avprg-project#hand-video-to-python-server)
 - [Authors](https://github.com/KevinKroell/avprg-project#authors)
 
 ---

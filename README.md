@@ -23,8 +23,9 @@
     - [NGINX](https://github.com/KevinKroell/avprg-project#nginx)
     - [PM2 (Node)](https://github.com/KevinKroell/avprg-project#pm2-node)
     - [Uvicorn (Python)](https://github.com/KevinKroell/avprg-project#uvicorn-python)
-  - [Node server](https://github.com/KevinKroell/avprg-project#node-server)
-  - [Python server](https://github.com/KevinKroell/avprg-project#python-server)
+  - [Typical Workflow](https://github.com/KevinKroell/avprg-project#typical-workflow)
+    - [Startup](https://github.com/KevinKroell/avprg-project#startup)
+    - [Making Changes](https://github.com/KevinKroell/avprg-project#making-changes)
 - [API Reference](https://github.com/KevinKroell/avprg-project#api-reference)
   - [Send video to Python server](https://github.com/KevinKroell/avprg-project#send-video-to-python-server)
 - [Authors](https://github.com/KevinKroell/avprg-project#authors)
@@ -473,6 +474,39 @@ tmux attach -t python-server
 **List running tmux sessions**  
 ```sh
 tmux ls
+```
+## Typical Workflow
+
+### Startup
+When everything is setup correctly, you would need to follow this command workflow in order to start everything.  
+```sh
+sudo systemctl start nginx
+cd ~avprg-project/node_server/
+pm2 start ecosystem.config.js --env production
+cd ../python_server/
+tmux new-session -s python-server
+uvicorn main:app --host localhost --port 8000
+# exit the tmux session window with [CTRL+B], [D]
+```
+
+### Applying Changes
+If you need to change anything in the configuration, pull updates or fix bugs, this workflow ensures you restarted everything correctly.
+```sh
+sudo systemctl restart nginx
+
+cd ~avprg-project/node_server/
+pm2 status    # look for the ID corresponding to the application
+pm2 stop [ID] # replace '[ID]' with the correct number
+pm2 del [ID]  # replace '[ID]' with the correct number
+pm2 start ecosystem.config.js --env production
+pm2 save
+
+cd ../python_server/
+tmux list-sessions # look for corresponding session
+tmux kill-session -t [target-session] # replace '[target-session]' with correct one
+tmux new-session -s python-server
+uvicorn main:app --host localhost --port 8000
+# exit the tmux session window with [CTRL+B], [D]
 ```
 
 ---

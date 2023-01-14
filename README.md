@@ -16,6 +16,13 @@
   - [Start Node server](https://github.com/KevinKroell/avprg-project#start-node-server)
   - [Start Python server](https://github.com/KevinKroell/avprg-project#start-python-server)
 - [Deployment](https://github.com/KevinKroell/avprg-project#deployment)
+  - [Known Issues & Possible Solutions](https://github.com/KevinKroell/avprg-project#further-requirements)
+  - [Installation](https://github.com/KevinKroell/avprg-project#installation-1)
+    - [Further Requirements:](https://github.com/KevinKroell/avprg-project#further-requirements)
+  - [Setup & Settings](https://github.com/KevinKroell/avprg-project#setup--settings)
+    - [NGINX](https://github.com/KevinKroell/avprg-project#nginx)
+    - [PM2 (Node)](https://github.com/KevinKroell/avprg-project#pm2-node)
+    - [Uvicorn (Python)](https://github.com/KevinKroell/avprg-project#uvicorn-python)
   - [Node server](https://github.com/KevinKroell/avprg-project#node-server)
   - [Python server](https://github.com/KevinKroell/avprg-project#python-server)
 - [API Reference](https://github.com/KevinKroell/avprg-project#api-reference)
@@ -231,7 +238,7 @@ Follow all steps of the [Installation Steps](https://github.com/KevinKroell/avpr
   sudo apt-get install tmux 
   ```
 
-### **Setup & Settings**
+## Setup & Settings
 
 ### NGINX
 Since we will start Node and Python as local servers, we need to forward incoming requests to each of these two.  

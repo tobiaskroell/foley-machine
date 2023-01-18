@@ -537,7 +537,7 @@ uvicorn main:app --host localhost --port 8000
 
 ```
   {
-      "filepath" : "../../node_server/public/video/"
+      "filepath" : "../../node_server/public/video/file.mp4"
   }
 ```
 ---

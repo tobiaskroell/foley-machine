@@ -12,7 +12,7 @@ var convolverNodes = [];
 var reverbGainNodes = [];
 var masterGain;
 var data;
-let responseFiles = ["room", "church", "cave", "garage", "room2"]
+let responseFiles = ["room" , "garage", "church", "pingPong"]
 var knobBgColor = "#7FB069";
 var knobFgColor = "#7FB069";
 var knobDiameter = 32;
@@ -337,10 +337,9 @@ function returnAudioElement(name, channel) {
     <div class="select">
       <select id="selectList${channel}">
         <option value="room">Room</option>
-        <option value="room2">Room2</option>
-        <option value="church">Church</option>
-        <option value="cave">Cave</option>
         <option value="garage">Garage</option>
+        <option value="church">Church</option>
+        <option value="pingPong">PingPong</option>
       </select>
     </div>
   </div>

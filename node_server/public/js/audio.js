@@ -267,8 +267,10 @@ function changeParameter(e, i) {
       break;
     case "pitchSlider" + i:
       document.querySelector("#pitchOutput" + i).innerHTML = (e.target.value / 100);
-      bufferSourceNodes[i].playbackRate.value = e.target.value / 100;
-      console.log(bufferSourceNodes[i].playbackRate.value)
+      let animalBufferIndices = animalGroups.find(object => object.node_group == i).soundList_indices;
+      for (let index of animalBufferIndices) {
+        bufferSourceNodes[index].playbackRate.value = e.target.value / 100;
+      }
       break;
     case "selectList" + i:
       convolverNodes[i].buffer = convolverBuffers[e.target.selectedIndex];

@@ -759,7 +759,7 @@ input.eq-switch {
   height: 50px;
   background-color: #93939350;
   transition-duration: 200ms;
-  border-radius: 20px;
+  border-radius: 6px;
   border: "transparent";
 }
 

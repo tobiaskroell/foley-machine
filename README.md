@@ -38,7 +38,7 @@
 Clone the project
 
 ```bash
-  git clone https://github.com/KevinKroell/avprg-project
+  git clone https://github.com/KevinKroell/foley-machine
 ```
 
 ---

@@ -1,4 +1,5 @@
 # **Automatic Foley Machine**
+This project uses YOLOv5 to detect objects from video and then play appropriate sounds for the identified objects when they appear in the video using the freesound.org API. To create an interactive audio-visual experience, sounds can be adjusted with different knobs enabling effects like reverb, filtering and pitching. This project was temporarily deployed on Amazon AWS but then shut down due to maintenance costs.
 
 ## **Table of contents**
 

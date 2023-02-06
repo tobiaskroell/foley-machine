@@ -3,34 +3,34 @@ This project uses YOLOv5 to detect objects from video and then play appropriate 
 
 ## **Table of contents**
 
-- [Installation](https://github.com/KevinKroell/foley-machine#installation)  
-  - [Node Server](https://github.com/KevinKroell/foley-machine#node-server)
-    - [Node.js](https://github.com/KevinKroell/foley-machine#applying-changes)
-    - [*Optional:* Installing NVM](https://github.com/KevinKroell/foley-machine#optional-installing-nvm-node-version-manager)
-    - [Using NVM](https://github.com/KevinKroell/foley-machine#using-nvm)
-    - [Installing dependencies](https://github.com/KevinKroell/foley-machine#installing-dependencies)
-  - [Python server](https://github.com/KevinKroell/foley-machine#python-server)
-  - [Decrypt API-Tokens](https://github.com/KevinKroell/foley-machine#decrypt-api-tokens) 
-    - [Setup git-secret](https://github.com/KevinKroell/foley-machine#setup-git-secret)
-    - [(Re)-Encrypt Files](https://github.com/KevinKroell/foley-machine#re-encrypt-files)
-- [Run locally](https://github.com/KevinKroell/foley-machine#run-locally)
-  - [Start Node server](https://github.com/KevinKroell/foley-machine#start-node-server)
-  - [Start Python server](https://github.com/KevinKroell/foley-machine#start-python-server)
-- [Deployment](https://github.com/KevinKroell/foley-machine#deployment)
-  - [Known Issues & Possible Solutions](https://github.com/KevinKroell/foley-machine#further-requirements)
-  - [Installation](https://github.com/KevinKroell/foley-machine#installation-1)
-    - [Further Requirements:](https://github.com/KevinKroell/foley-machine#further-requirements)
-  - [Setup & Settings](https://github.com/KevinKroell/foley-machine#setup--settings)
-    - [NGINX](https://github.com/KevinKroell/foley-machine#nginx)
-    - [PM2 (Node)](https://github.com/KevinKroell/foley-machine#pm2-node)
-    - [Uvicorn (Python)](https://github.com/KevinKroell/foley-machine#uvicorn-python)
-  - [Typical Workflow](https://github.com/KevinKroell/foley-machine#typical-workflow)
-    - [Startup](https://github.com/KevinKroell/foley-machine#startup)
-    - [Applying Changes](https://github.com/KevinKroell/foley-machine#applying-changes)
-- [API Reference](https://github.com/KevinKroell/foley-machine#api-reference)
-  - [Upload video to node](https://github.com/KevinKroell/foley-machine#upload-video-to-node)
-  - [Hand video to Python server](https://github.com/KevinKroell/foley-machine#hand-video-to-python-server)
-- [Authors](https://github.com/KevinKroell/foley-machine#authors)
+- [Installation](#installation)  
+  - [Node Server](#node-server)
+    - [Node.js](#applying-changes)
+    - [*Optional:* Installing NVM](#optional-installing-nvm-node-version-manager)
+    - [Using NVM](#using-nvm)
+    - [Installing dependencies](#installing-dependencies)
+  - [Python server](#python-server)
+  - [Decrypt API-Tokens](#decrypt-api-tokens) 
+    - [Setup git-secret](#setup-git-secret)
+    - [(Re)-Encrypt Files](#re-encrypt-files)
+- [Run locally](#run-locally)
+  - [Start Node server](#start-node-server)
+  - [Start Python server](#start-python-server)
+- [Deployment](#deployment)
+  - [Known Issues & Possible Solutions](#further-requirements)
+  - [Installation](#installation-1)
+    - [Further Requirements:](#further-requirements)
+  - [Setup & Settings](#setup--settings)
+    - [NGINX](#nginx)
+    - [PM2 (Node)](#pm2-node)
+    - [Uvicorn (Python)](#uvicorn-python)
+  - [Typical Workflow](#typical-workflow)
+    - [Startup](#startup)
+    - [Applying Changes](#applying-changes)
+- [API Reference](#api-reference)
+  - [Upload video to node](#upload-video-to-node)
+  - [Hand video to Python server](#hand-video-to-python-server)
+- [Authors](#authors)
 
 ---
 ---
@@ -221,7 +221,7 @@ The python model is running on CPU, since the free tier does not offer a CUDA GP
 
 ## Installation
 
-Follow all steps of the [Installation Steps](https://github.com/KevinKroell/foley-machine#installation) from above.
+Follow all steps of the [Installation Steps](#installation) from above.
 
 ### **Further Requirements:**
 - **[PM2](https://pm2.keymetrics.io/):**  

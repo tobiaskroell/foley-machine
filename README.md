@@ -3,34 +3,34 @@ This project uses YOLOv5 to detect objects from video and then play appropriate 
 
 ## **Table of contents**
 
-- [Installation](https://github.com/KevinKroell/avprg-project#installation)  
-  - [Node Server](https://github.com/KevinKroell/avprg-project#node-server)
-    - [Node.js](https://github.com/KevinKroell/avprg-project#applying-changes)
-    - [*Optional:* Installing NVM](https://github.com/KevinKroell/avprg-project#optional-installing-nvm-node-version-manager)
-    - [Using NVM](https://github.com/KevinKroell/avprg-project#using-nvm)
-    - [Installing dependencies](https://github.com/KevinKroell/avprg-project#installing-dependencies)
-  - [Python server](https://github.com/KevinKroell/avprg-project#python-server)
-  - [Decrypt API-Tokens](https://github.com/KevinKroell/avprg-project#decrypt-api-tokens) 
-    - [Setup git-secret](https://github.com/KevinKroell/avprg-project#setup-git-secret)
-    - [(Re)-Encrypt Files](https://github.com/KevinKroell/avprg-project#re-encrypt-files)
-- [Run locally](https://github.com/KevinKroell/avprg-project#run-locally)
-  - [Start Node server](https://github.com/KevinKroell/avprg-project#start-node-server)
-  - [Start Python server](https://github.com/KevinKroell/avprg-project#start-python-server)
-- [Deployment](https://github.com/KevinKroell/avprg-project#deployment)
-  - [Known Issues & Possible Solutions](https://github.com/KevinKroell/avprg-project#further-requirements)
-  - [Installation](https://github.com/KevinKroell/avprg-project#installation-1)
-    - [Further Requirements:](https://github.com/KevinKroell/avprg-project#further-requirements)
-  - [Setup & Settings](https://github.com/KevinKroell/avprg-project#setup--settings)
-    - [NGINX](https://github.com/KevinKroell/avprg-project#nginx)
-    - [PM2 (Node)](https://github.com/KevinKroell/avprg-project#pm2-node)
-    - [Uvicorn (Python)](https://github.com/KevinKroell/avprg-project#uvicorn-python)
-  - [Typical Workflow](https://github.com/KevinKroell/avprg-project#typical-workflow)
-    - [Startup](https://github.com/KevinKroell/avprg-project#startup)
-    - [Applying Changes](https://github.com/KevinKroell/avprg-project#applying-changes)
-- [API Reference](https://github.com/KevinKroell/avprg-project#api-reference)
-  - [Upload video to node](https://github.com/KevinKroell/avprg-project#upload-video-to-node)
-  - [Hand video to Python server](https://github.com/KevinKroell/avprg-project#hand-video-to-python-server)
-- [Authors](https://github.com/KevinKroell/avprg-project#authors)
+- [Installation](https://github.com/KevinKroell/foley-machine#installation)  
+  - [Node Server](https://github.com/KevinKroell/foley-machine#node-server)
+    - [Node.js](https://github.com/KevinKroell/foley-machine#applying-changes)
+    - [*Optional:* Installing NVM](https://github.com/KevinKroell/foley-machine#optional-installing-nvm-node-version-manager)
+    - [Using NVM](https://github.com/KevinKroell/foley-machine#using-nvm)
+    - [Installing dependencies](https://github.com/KevinKroell/foley-machine#installing-dependencies)
+  - [Python server](https://github.com/KevinKroell/foley-machine#python-server)
+  - [Decrypt API-Tokens](https://github.com/KevinKroell/foley-machine#decrypt-api-tokens) 
+    - [Setup git-secret](https://github.com/KevinKroell/foley-machine#setup-git-secret)
+    - [(Re)-Encrypt Files](https://github.com/KevinKroell/foley-machine#re-encrypt-files)
+- [Run locally](https://github.com/KevinKroell/foley-machine#run-locally)
+  - [Start Node server](https://github.com/KevinKroell/foley-machine#start-node-server)
+  - [Start Python server](https://github.com/KevinKroell/foley-machine#start-python-server)
+- [Deployment](https://github.com/KevinKroell/foley-machine#deployment)
+  - [Known Issues & Possible Solutions](https://github.com/KevinKroell/foley-machine#further-requirements)
+  - [Installation](https://github.com/KevinKroell/foley-machine#installation-1)
+    - [Further Requirements:](https://github.com/KevinKroell/foley-machine#further-requirements)
+  - [Setup & Settings](https://github.com/KevinKroell/foley-machine#setup--settings)
+    - [NGINX](https://github.com/KevinKroell/foley-machine#nginx)
+    - [PM2 (Node)](https://github.com/KevinKroell/foley-machine#pm2-node)
+    - [Uvicorn (Python)](https://github.com/KevinKroell/foley-machine#uvicorn-python)
+  - [Typical Workflow](https://github.com/KevinKroell/foley-machine#typical-workflow)
+    - [Startup](https://github.com/KevinKroell/foley-machine#startup)
+    - [Applying Changes](https://github.com/KevinKroell/foley-machine#applying-changes)
+- [API Reference](https://github.com/KevinKroell/foley-machine#api-reference)
+  - [Upload video to node](https://github.com/KevinKroell/foley-machine#upload-video-to-node)
+  - [Hand video to Python server](https://github.com/KevinKroell/foley-machine#hand-video-to-python-server)
+- [Authors](https://github.com/KevinKroell/foley-machine#authors)
 
 ---
 ---
@@ -221,7 +221,7 @@ The python model is running on CPU, since the free tier does not offer a CUDA GP
 
 ## Installation
 
-Follow all steps of the [Installation Steps](https://github.com/KevinKroell/avprg-project#installation) from above.
+Follow all steps of the [Installation Steps](https://github.com/KevinKroell/foley-machine#installation) from above.
 
 ### **Further Requirements:**
 - **[PM2](https://pm2.keymetrics.io/):**  
@@ -458,7 +458,7 @@ When using SSH to connect to the remote linux machine, it might help to make use
 Except from a few parameters when starting uvicorn, the process does not need any further configuration.  
 
 **Start Uvicorn with TMUX session**  
-Change to the python directory with `cd avprg-project/python_server/`, then follow the steps below:  
+Change to the python directory with `cd foley-machine/python_server/`, then follow the steps below:  
 ```sh
 # create a new tmux session with name 'python-server'
 tmux new-session -s python-server
@@ -483,7 +483,7 @@ tmux ls
 When everything is setup correctly, you would need to follow this command workflow in order to start everything.  
 ```sh
 sudo systemctl start nginx
-cd ~avprg-project/node_server/
+cd ~foley-machine/node_server/
 pm2 start ecosystem.config.js --env production
 cd ../python_server/
 tmux new-session -s python-server
@@ -496,7 +496,7 @@ If you need to change anything in the configuration, pull updates or fix bugs, t
 ```sh
 sudo systemctl restart nginx
 
-cd ~avprg-project/node_server/
+cd ~foley-machine/node_server/
 pm2 status    # look for the ID corresponding to the application
 pm2 stop [ID] # replace '[ID]' with the correct number
 pm2 del [ID]  # replace '[ID]' with the correct number

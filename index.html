@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Automatic Foley Machine</title>
+        <script src="/js/jquery-3.6.1.min.js"></script>
+        <script src="https://www.youtube.com/player_api"></script>
+        <script src="/js/soundlist.js"></script>
+        <script src="/js/scripts.js"></script>
+        <script src="/js/input-knobs.js"></script>
+        <link rel="stylesheet" href="./css/styles.css">
+    </head>
+    <body>
+        <div id="overlay"></div>
+        <div class="wrapper">
+            <h1>Automatic&nbsp;Foley&nbsp;Machine</h1>
+            <p class="subline">
+                Send us an animal video,<br>and we'll return matching sounds!     
+            </p>
+            <form class="dropzone" method="POST" action="/upload" enctype="multipart/form-data" onsubmit="event.preventDefault();">
+                <div class="dropzone_input">
+                    <input class="inputfile" id="file" name="file" type="file" accept="video/mp4">
+                    <label for="file">
+                        <strong>Choose an *.mp4 file<span class="dropzone_dragndrop"> or drag it here</span>.</strong><br>
+                        <small>(Maximum file size: 40 MB)</small>
+                    </label>
+                    <!-- <button class="dropzone_button" type="submit">Upload</button> -->
+                </div>
+                <!-- <div class="dropzone_uploading">Video is uploading...</div> -->
+                <div class="dropzone_success">Done!</div>
+                <div class="dropzone_error">An error occured.</div>
+                <div class="is_processing hidden">
+                    <p><strong>Video is processing...</strong></p>
+                    <div id="is_loading"></div>
+                </div>
+                <!-- <label for="youtube" class="labelYouTube">Or paste a YouTube-Link:</label>
+                <div class="inputYtArea">
+                    <input type="text" class="inputYouTube" id="youtube" name="youtube" placeholder="https://youtube.com/your-video" pattern="^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$" onchange="checkLinkInput(this.value)">
+                    <button class="buttonYouTube hidden" type="submit">Go!</button>
+                </div> -->
+            </form>
+            <!-- Output Area -->
+            <div class="output hidden">
+                <div class="master" id="master">
+                    <label for="volume">Master Volume</label>
+                    <input class="input-knob" type="range" knobDiameter="45" data-bgcolor="#ffffff" data-fgcolor="#ffffff" id="masterSlider" name="master" min="0" max="100" value="50">
+                    <p id="masterOutput">50</p>
+                </div>
+                <!-- Video output area -->
+                <div class="output_video"> 
+                    <div class="mp4-container hidden">
+                        <video class="mp4-video" muted autoplay>
+                            <source src="" type="video/mp4">
+                        </video>
+                        <div class="video-play-overlay_container">
+                            <button id="playPauseButton" class="video-play-overlay_button" onclick="console.log('clicked button')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#F5F0F6"><path d="M6 22v-20l18 10-18 10z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="youtube-video hidden">
+                        <div id="youtube-video"></div> <!-- Will be replaced by YouTube-Video with JS -->
+                        <div class="video-play-overlay_container">
+                            <button id="playPauseButton" class="video-play-overlay_button" onclick="console.log('clicked button')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#F5F0F6"><path d="M6 22v-20l18 10-18 10z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="timecode"></p>
+                    <input class="reloadButton" type="button" value="Upload new!" onclick="reloadAndDelete()">
+                </div>
+                <!-- Audio output area -->
+                <div class="output_sound">
+                    <h2>Audio Mixer</h2>
+                    <div id="audioElementsFrame" class="audioElementsFrame">
+                        <!-- Area for audio elements -->                    
+                    </div>
+                </div>
+                <script src="/js/audio.js"></script>
+            </div>
+            <!-- Info Collapsible -->
+            <ul>
+                <li>
+                    <input type="checkbox">
+                    <i></i>
+                    <h2>How it works</h2>
+                    <p>
+                        <b>This page</b> is served by a node.js webserver, which is also responsible for temporarily 
+                        storing your video on its disk when you upload something.
+                        It then tells another server, which is run by Python, where to find your video.<br>
+                        On the Python server, there is running a programm using a pre-trained machine learning 
+                        model, based on the so called YOLOv5 algorithm for object detection. After processing 
+                        and analyzing the video frames, the Python server then sends back the information 
+                        about what animals have been detected to the node.js webserver.  
+                        <br><br>
+                        <b>Using this information,</b> the webserver is now calling the API (Application Programming 
+                        Interface) of freesound.org, which is a huge collaborative database of audio files, 
+                        released under Creative Commons licenses.<br>
+                        Communicating with that API results in a list of audio files, which are then handed 
+                        over to the page you are looking at to create audio controls streaming the audio 
+                        directly from the freesound servers.<br>
+                        <br><br>              
+                        <b>For ensuring</b> that the sounds only play at a time corresponding to the actual animals 
+                        seen in the video content, we use timestamps. To manipulate these files with the 
+                        controls while playing, we make use of the Web Audio API - a powerful and versatile 
+                        system for controlling audio on the Web.  
+                        <br><br>
+                        And that's how the magic works!
+                    </p>
+                </li>
+              </ul>
+        </div>
+        <canvas id="waves"></canvas>
+        <div class="background-pattern"></div>
+        <script src="/js/waves.js"></script>
+    </body>
+</html>

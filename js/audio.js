@@ -22,7 +22,7 @@ function loadImpulseResponse(responseFiles) {
     loadReady = false;
     for (let i = 0; i < responseFiles.length; i++) {
       console.log(responseFiles[i]);
-      fetch("/impulseResponses/" + responseFiles[i] + ".wav")
+      fetch("./impulseResponses/" + responseFiles[i] + ".wav")
         .then(response => response.arrayBuffer())
         .then(undecodedAudio => context.decodeAudioData(undecodedAudio))
         .then(convolverBuffer => {

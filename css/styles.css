@@ -244,8 +244,8 @@ h2 {
 
 .is_processing > #is_loading {
   background-color: #F5F0F6;
-  -webkit-mask: url(/img/loading.svg) no-repeat center;
-  mask: url(/img/loading.svg) no-repeat center;
+  -webkit-mask: url(./../img/loading.svg) no-repeat center;
+  mask: url(./../img/loading.svg) no-repeat center;
   width: 100%;
   height: 50px;
   -webkit-mask-size: contain;

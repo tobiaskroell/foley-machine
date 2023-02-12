@@ -236,7 +236,7 @@ function createMp4Player(data) {
             $('#playPauseButton').removeClass('hidden');
         });
     $('.mp4-container').removeClass('hidden');
-    const source = '/video/' + data.filename;
+    const source = './video/' + data.filename;
     $('.mp4-video source').attr('src', source);
     $('.mp4-video')[0].load();
     $('.mp4-video')[0].pause();

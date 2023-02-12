@@ -257,21 +257,5 @@ function getTimecode(player) {
 }
 
 function reloadAndDelete() {
-    const fileSource = $('.mp4-video source').attr('src');
-    const file = fileSource != "" ? fileSource.split('/video/')[1] : null;
-    if (file != null) {
-        $.ajax({
-            url: '/',
-            type: 'POST',
-            data: {file: file},
-            success: function(data) {
-                location.reload();
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-    } else {
-        location.reload();
-    }
+    location.reload();
 }

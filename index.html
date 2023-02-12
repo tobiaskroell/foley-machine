@@ -2,16 +2,26 @@
 <html>
     <head>
         <title>Automatic Foley Machine</title>
-        <script src="/js/jquery-3.6.1.min.js"></script>
+        <script src="./js/jquery-3.6.1.min.js"></script>
         <script src="https://www.youtube.com/player_api"></script>
-        <script src="/js/soundlist.js"></script>
-        <script src="/js/scripts.js"></script>
-        <script src="/js/input-knobs.js"></script>
+        <script src="./js/soundlist.js"></script>
+        <script src="./js/scripts.js"></script>
+        <script src="./js/input-knobs.js"></script>
         <link rel="stylesheet" href="./css/styles.css">
     </head>
     <body>
         <div id="overlay"></div>
         <div class="wrapper">
+            <div class="glass-overlay">
+                <p>
+                    <b>THIS IS JUST A DEMO!</b><br><br>
+                    Just click on the upload area, and this page will react like the original application.<br>
+                    Due to limited server resources and problems with multiple users, this page just acts like it received a video from you.<br>
+                    There is no backend or Python server working in the background, but it should give you an idea of how things worked.<br>
+                    Playing the pre-defined video and manipulating the corresponding sound nodes works just as in the original application.
+                </p><br>
+                <input type="button" value="Close" onclick="$('.glass-overlay').addClass('hidden');">
+            </div>
             <h1>Automatic&nbsp;Foley&nbsp;Machine</h1>
             <p class="subline">
                 Send us an animal video,<br>and we'll return matching sounds!     
@@ -66,8 +76,8 @@
                         </div>
                     </div>
                     <p class="timecode"></p>
-                    <input class="reloadButton" type="button" value="Upload new!" onclick="reloadAndDelete()">
                 </div>
+                <input class="reloadButton" type="button" value="Upload new!" onclick="reloadAndDelete()">
                 <!-- Audio output area -->
                 <div class="output_sound">
                     <h2>Audio Mixer</h2>
@@ -75,7 +85,7 @@
                         <!-- Area for audio elements -->                    
                     </div>
                 </div>
-                <script src="/js/audio.js"></script>
+                <script src="./js/audio.js"></script>
             </div>
             <!-- Info Collapsible -->
             <ul>
@@ -111,6 +121,6 @@
         </div>
         <canvas id="waves"></canvas>
         <div class="background-pattern"></div>
-        <script src="/js/waves.js"></script>
+        <script src="./js/waves.js"></script>
     </body>
 </html>

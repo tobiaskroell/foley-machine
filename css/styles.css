@@ -137,6 +137,46 @@ h2 {
     box-sizing: border-box;
 }
 
+.glass-overlay{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.29);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(7.4px);
+  -webkit-backdrop-filter: blur(7.4px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  position: fixed;
+  top: 30%;
+  z-index: 15;
+  max-width: 70vw;
+  max-height: 65vh;
+  padding: 2em;
+  color: #fce63f;
+}
+
+.glass-overlay input[type=button] {
+  height: 38px;
+  border: 1px solid white;
+  color: white;
+  border-radius: 10px;
+  background-color: transparent;
+  padding: 0.25rem 1rem 0.25rem 1rem;
+  font-family: 'Mulish';
+  margin: 0 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  align-self: center;
+  transition: all 0.5s ease;
+}
+
+.glass-overlay input[type=button]:hover {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.3);
+}
+
 .dropzone {
     display: flex;
     flex-direction: column;
@@ -780,18 +820,21 @@ input.eq-switch:checked:hover{
   display: flex;
   flex-direction: column;
   width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .mp4-container {
   position: relative;
   display: flex;
-  /* width: 100%; */
   justify-content: center;
-  max-height: 40vh;
+  align-items: flex-start;
 }
 
 .mp4-video {
-  /* max-width: 100%; */
+  max-width: 100%;
+  max-height: 40vh;
   border: solid #F5F0F6 2px;
   border-radius: 25px;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;

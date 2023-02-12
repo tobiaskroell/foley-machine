@@ -275,7 +275,7 @@ dist
 # End of node.js
 
 ### Ignore Uploads ###
-#*.mp4
+*.mp4
 .gitsecret/keys/random_seed
 !*.secret
 node_server/secret.js

@@ -1,4 +1,6 @@
 # **Automatic Foley Machine**
+**Live Demo: https://tobiaskroell.com/foley-machine-demo/foley-demo.html**
+
 This project uses YOLOv5 to detect objects from a video without audio and then play appropriate sounds for the identified objects when they appear in the video using the freesound.org API. To create an interactive audio-visual experience, sounds can be adjusted with different knobs enabling effects like reverb, filtering and pitching. This version is limited for playing sounds on animals. The project was temporarily deployed on Amazon AWS but then shut down due to maintenance costs.
 
 ## **Table of contents**
